@@ -14,39 +14,43 @@ namespace Insonnia
 {
     public partial class Form1 : Form
     {
-        private CancellationTokenSource CancellationTokenSource;
+        private System.Threading.Timer _timer;
 
-        public Form1()
+        public Form1(bool showUi)
         {
             InitializeComponent();
-        }
+            _timer = new System.Threading.Timer(
+                TimerCB,
+                null,
+                Timeout.Infinite,
+                Timeout.Infinite);
 
-      
-        
-        public async Task StartInsonnia()
-        {
-            CancellationTokenSource = new CancellationTokenSource();
-
-            await Task.Run(() =>
+            if (!showUi)
             {
-                do
-                {
-                    // Prevent Idle-to-Sleep (monitor not affected) (see note above)
-                    SetThreadExecutionState(EXECUTION_STATE.ES_CONTINUOUS | EXECUTION_STATE.ES_DISPLAY_REQUIRED | EXECUTION_STATE.ES_AWAYMODE_REQUIRED);
-                    CancellationTokenSource.Token.WaitHandle.WaitOne(30000);
-                    // Attendo la cancellazione    
-                } while (!CancellationTokenSource.Token.IsCancellationRequested);
+                WindowState = FormWindowState.Minimized;
 
-            });
+                btnStart.Visible = false;
+                btnStop.Visible = true;
 
+                StartInsonnia();
+            }
+            else
+            {
+                btnStart.Visible = true;
+                btnStop.Visible = false;
+            }
         }
-
-        public void StopInsonnia()
+        private void TimerCB(object state)
         {
-
-            SetThreadExecutionState(EXECUTION_STATE.ES_CONTINUOUS);
-
+            SetThreadExecutionState(EXECUTION_STATE.ES_CONTINUOUS | EXECUTION_STATE.ES_DISPLAY_REQUIRED | EXECUTION_STATE.ES_AWAYMODE_REQUIRED);
         }
+
+
+        public void StartInsonnia()
+        {
+            _timer.Change(0, 5000);
+        }
+
         // https://stackoverflow.com/questions/49045701/prevent-screen-from-sleeping-with-c-sharp
         // Define other methods and classes here
         [DllImport("kernel32.dll", CharSet = CharSet.Auto, SetLastError = true)]
@@ -64,15 +68,14 @@ namespace Insonnia
             // ES_USER_PRESENT = 0x00000004
         }
 
-        private async void btnStart_Click(object sender, EventArgs e)
+        private void btnStart_Click(object sender, EventArgs e)
         {
-            
             notifyIcon.ShowBalloonTip(5000,"Insonnia","Started",ToolTipIcon.Info);
 
             btnStart.Visible = false;
             btnStop.Visible = true;
 
-            await StartInsonnia();
+            StartInsonnia();
 
             notifyIcon.ShowBalloonTip(5000, "Insonnia", "Stopped", ToolTipIcon.Info);
             btnStart.Visible = true;
@@ -81,7 +84,10 @@ namespace Insonnia
 
         private void btnStop_Click(object sender, EventArgs e)
         {
-            CancellationTokenSource.Cancel();
+            _timer.Change(Timeout.Infinite, Timeout.Infinite);
+
+            btnStart.Visible = true;
+            btnStop.Visible = false;
         }
 
         private void Form1_Resize(object sender, EventArgs e)
@@ -89,7 +95,7 @@ namespace Insonnia
             //if the form is minimized  
             //hide it from the task bar  
             //and show the system tray icon (represented by the NotifyIcon control)  
-            if (this.WindowState == FormWindowState.Minimized)
+            if (WindowState == FormWindowState.Minimized)
             {
                 Hide();
             }
@@ -98,14 +104,13 @@ namespace Insonnia
         private void notifyIcon_MouseClick(object sender, MouseEventArgs e)
         {
             Show();
-            this.WindowState = FormWindowState.Normal;
+            WindowState = FormWindowState.Normal;
         }
 
         private void notifyIcon1_MouseDoubleClick(object sender, MouseEventArgs e)
         {
             Show();
-            this.WindowState = FormWindowState.Normal;
-
+            WindowState = FormWindowState.Normal;
         }
     }
 }

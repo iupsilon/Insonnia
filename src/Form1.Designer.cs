@@ -90,7 +90,11 @@ namespace Insonnia
             this.Controls.Add(this.btnStart);
             this.Controls.Add(this.lblTitle);
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
+            this.MaximizeBox = false;
+            this.MaximumSize = new System.Drawing.Size(305, 189);
+            this.MinimumSize = new System.Drawing.Size(305, 189);
             this.Name = "Form1";
+            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "Insonnia";
             this.Resize += new System.EventHandler(this.Form1_Resize);
             this.ResumeLayout(false);

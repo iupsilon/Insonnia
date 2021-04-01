@@ -12,11 +12,13 @@ namespace Insonnia
         /// Punto di ingresso principale dell'applicazione.
         /// </summary>
         [STAThread]
-        static void Main()
+        static void Main(string[] args)
         {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new Form1());
+
+            bool silent = args != null && args.Length > 0 && string.Equals(args[0], "-s");
+            Application.Run(new Form1(!silent));
         }
     }
 }
