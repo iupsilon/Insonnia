@@ -33,6 +33,7 @@ namespace Insonnia
                 btnStop.Visible = true;
 
                 StartInsonnia();
+                ShowInTaskbar = false;
             }
             else
             {
