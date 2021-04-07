@@ -1,13 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
 using System.Runtime.InteropServices;
-using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace Insonnia
@@ -77,16 +70,12 @@ namespace Insonnia
             btnStop.Visible = true;
 
             StartInsonnia();
-
-            notifyIcon.ShowBalloonTip(5000, "Insonnia", "Stopped", ToolTipIcon.Info);
-            btnStart.Visible = true;
-            btnStop.Visible = false;
         }
 
         private void btnStop_Click(object sender, EventArgs e)
         {
             _timer.Change(Timeout.Infinite, Timeout.Infinite);
-
+            notifyIcon.ShowBalloonTip(5000, "Insonnia", "Stopped", ToolTipIcon.Info);
             btnStart.Visible = true;
             btnStop.Visible = false;
         }
