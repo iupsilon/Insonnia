@@ -17,8 +17,8 @@ namespace Insonnia
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
 
-            bool silent = args != null && args.Length > 0 && string.Equals(args[0], "-s");
-            Application.Run(new Form1(!silent));
+            bool autoStart = args != null && args.Length > 0 && string.Equals(args[0], "-s");
+            Application.Run(new Form1(autoStart));
         }
     }
 }

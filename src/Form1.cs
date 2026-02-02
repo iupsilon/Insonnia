@@ -1,5 +1,6 @@
-﻿using System;
-using System.Runtime.InteropServices;
+﻿using Insonnia.Properties;
+using System;
+using System.Drawing;
 using System.Threading;
 using System.Windows.Forms;
 
@@ -8,76 +9,96 @@ namespace Insonnia
     public partial class Form1 : Form
     {
         private System.Threading.Timer _timer;
+        private bool _keepAwake = false;
+        private DateTime? _insonniaStarted = null;
 
-        public Form1(bool showUi)
+        public Form1(bool autoStart)
         {
             InitializeComponent();
+            
             _timer = new System.Threading.Timer(
                 TimerCB,
                 null,
                 Timeout.Infinite,
                 Timeout.Infinite);
 
-            if (!showUi)
+            UpdateUI();
+            UpdateLevel();
+
+            if (autoStart)
             {
-                WindowState = FormWindowState.Minimized;
-
-                btnStart.Visible = false;
-                btnStop.Visible = true;
-
+                Minimize();
                 StartInsonnia();
-                ShowInTaskbar = false;
-            }
-            else
-            {
-                btnStart.Visible = true;
-                btnStop.Visible = false;
             }
         }
+
         private void TimerCB(object state)
         {
-            SetThreadExecutionState(EXECUTION_STATE.ES_CONTINUOUS | EXECUTION_STATE.ES_DISPLAY_REQUIRED | EXECUTION_STATE.ES_AWAYMODE_REQUIRED);
+            Win32Interop.SetThreadExecutionState(EXECUTION_STATE.ES_CONTINUOUS | 
+                EXECUTION_STATE.ES_DISPLAY_REQUIRED | 
+                EXECUTION_STATE.ES_AWAYMODE_REQUIRED);
+
+            UpdateLevel();
         }
 
-
-        public void StartInsonnia()
+        private void StartInsonnia()
         {
+            notifyIcon.ShowBalloonTip(2000, "Insonnia", "Started", ToolTipIcon.Info);
+
+            _insonniaStarted = DateTime.Now;
             _timer.Change(0, 5000);
+
+            _keepAwake = true;
+            UpdateUI();
+            UpdateLevel();
         }
 
-        // https://stackoverflow.com/questions/49045701/prevent-screen-from-sleeping-with-c-sharp
-        // Define other methods and classes here
-        [DllImport("kernel32.dll", CharSet = CharSet.Auto, SetLastError = true)]
-        static extern EXECUTION_STATE SetThreadExecutionState(EXECUTION_STATE esFlags);
-
-        [FlagsAttribute]
-        public enum EXECUTION_STATE : uint
+        private void StopInsonnia()
         {
-            ES_AWAYMODE_REQUIRED = 0x00000040,
-            ES_CONTINUOUS = 0x80000000,
-            ES_DISPLAY_REQUIRED = 0x00000002,
+            notifyIcon.ShowBalloonTip(2000, "Insonnia", "Stopped", ToolTipIcon.Info);
 
-            ES_SYSTEM_REQUIRED = 0x00000001
-            // Legacy flag, should not be used.
-            // ES_USER_PRESENT = 0x00000004
-        }
-
-        private void btnStart_Click(object sender, EventArgs e)
-        {
-            notifyIcon.ShowBalloonTip(5000,"Insonnia","Started",ToolTipIcon.Info);
-
-            btnStart.Visible = false;
-            btnStop.Visible = true;
-
-            StartInsonnia();
-        }
-
-        private void btnStop_Click(object sender, EventArgs e)
-        {
+            _insonniaStarted = null;
             _timer.Change(Timeout.Infinite, Timeout.Infinite);
-            notifyIcon.ShowBalloonTip(5000, "Insonnia", "Stopped", ToolTipIcon.Info);
-            btnStart.Visible = true;
-            btnStop.Visible = false;
+
+            _keepAwake = false;
+            UpdateUI();
+            UpdateLevel();
+        }
+
+        private void Minimize()
+        {
+            WindowState = FormWindowState.Minimized;
+            ShowInTaskbar = false;
+        }
+
+        private void UpdateUI()
+        {
+            btnStart.Visible = !_keepAwake;
+            btnStop.Visible = _keepAwake;
+
+            keepAwakeToolStripMenuItem.Checked = _keepAwake;
+        }
+
+        private void SetIcons(Icon icon)
+        {
+            if (this.InvokeRequired)
+                this.BeginInvoke((MethodInvoker)(() => SetIcons(icon)));
+            else
+                this.Icon = notifyIcon.Icon = icon;
+        }
+
+        private void UpdateLevel()
+        {
+            TimeSpan timeAwake = _insonniaStarted.HasValue ? DateTime.Now - _insonniaStarted.Value : TimeSpan.Zero;
+
+            foreach (InsonniaLevel level in InsonniaLevel.Levels)
+            {
+                if (timeAwake <= level.TimeKeptAwake)
+                {
+                    SetIcons(level.Icon);
+                    break;
+                }
+            }
         }
 
         private void Form1_Resize(object sender, EventArgs e)
@@ -91,16 +112,31 @@ namespace Insonnia
             }
         }
 
+        private void btnStart_Click(object sender, EventArgs e) => StartInsonnia();
+
+        private void btnStop_Click(object sender, EventArgs e) => StopInsonnia();
+
         private void notifyIcon_MouseClick(object sender, MouseEventArgs e)
+        {
+            if (e.Button == MouseButtons.Left)
+            {
+                Show();
+                WindowState = FormWindowState.Normal;
+            }
+        }
+
+        private void showToolStripMenuItem_Click(object sender, EventArgs e)
         {
             Show();
             WindowState = FormWindowState.Normal;
         }
 
-        private void notifyIcon1_MouseDoubleClick(object sender, MouseEventArgs e)
+        private void quitToolStripMenuItem_Click(object sender, EventArgs e) => Close();
+
+        private void keepAwakeToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            Show();
-            WindowState = FormWindowState.Normal;
+            if (_keepAwake) StopInsonnia();
+            else StartInsonnia();
         }
     }
 }
