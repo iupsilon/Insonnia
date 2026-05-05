@@ -1,0 +1,99 @@
+namespace Insonnia.Properties
+{
+    using System.Globalization;
+    /// <summary>
+    /// Wrapper localizzato IT/EN sopra le classi autogenerate Strings (IT) e StringsEn (EN).
+    /// </summary>
+    internal static class L
+    {
+        private static bool IsEnglish
+        {
+            get
+            {
+                return string.Equals(
+                    CultureInfo.CurrentUICulture.TwoLetterISOLanguageName,
+                    "en",
+                    System.StringComparison.OrdinalIgnoreCase);
+            }
+        }
+        private static string Get(string it, string en)
+        {
+            return IsEnglish ? en : it;
+        }
+
+        /// <summary>Lookup per chiave — usato da InsonniaLevel.</summary>
+        public static string Get(string key)
+        {
+            try
+            {
+                string v = IsEnglish ? StringsEn.ResourceManager.GetString(key) : null;
+                if (v == null) v = Strings.ResourceManager.GetString(key);
+                return v ?? key;
+            }
+            catch { return key; }
+        }
+        // Livelli
+        public static string Level_Off       { get { return Get(Strings.Level_Off,       StringsEn.Level_Off); } }
+        public static string Level_Quiet     { get { return Get(Strings.Level_Quiet,     StringsEn.Level_Quiet); } }
+        public static string Level_Happy     { get { return Get(Strings.Level_Happy,     StringsEn.Level_Happy); } }
+        public static string Level_Weary     { get { return Get(Strings.Level_Weary,     StringsEn.Level_Weary); } }
+        public static string Level_Exhausted { get { return Get(Strings.Level_Exhausted, StringsEn.Level_Exhausted); } }
+        // UI
+        public static string UI_Title         { get { return Get(Strings.UI_Title,         StringsEn.UI_Title); } }
+        public static string UI_LabelDuration { get { return Get(Strings.UI_LabelDuration, StringsEn.UI_LabelDuration); } }
+        public static string UI_LabelMinutes  { get { return Get(Strings.UI_LabelMinutes,  StringsEn.UI_LabelMinutes); } }
+        public static string UI_BtnStart      { get { return Get(Strings.UI_BtnStart,      StringsEn.UI_BtnStart); } }
+        public static string UI_BtnStop       { get { return Get(Strings.UI_BtnStop,       StringsEn.UI_BtnStop); } }
+        public static string UI_StatusPaused  { get { return Get(Strings.UI_StatusPaused,  StringsEn.UI_StatusPaused); } }
+        public static string UI_StatusActive(string n, string t)
+        { return string.Format(Get(Strings.UI_StatusActive, StringsEn.UI_StatusActive), n, t); }
+        public static string UI_StatusTimer(string n, string t)
+        { return string.Format(Get(Strings.UI_StatusTimer, StringsEn.UI_StatusTimer), n, t); }
+        // Durate combo
+        public static string Duration_Infinite { get { return Get(Strings.Duration_Infinite, StringsEn.Duration_Infinite); } }
+        public static string Duration_30min    { get { return Get(Strings.Duration_30min,    StringsEn.Duration_30min); } }
+        public static string Duration_1h       { get { return Get(Strings.Duration_1h,       StringsEn.Duration_1h); } }
+        public static string Duration_2h       { get { return Get(Strings.Duration_2h,       StringsEn.Duration_2h); } }
+        public static string Duration_4h       { get { return Get(Strings.Duration_4h,       StringsEn.Duration_4h); } }
+        public static string Duration_Custom   { get { return Get(Strings.Duration_Custom,   StringsEn.Duration_Custom); } }
+        // Context menu
+        public static string Menu_Show             { get { return Get(Strings.Menu_Show,             StringsEn.Menu_Show); } }
+        public static string Menu_Start            { get { return Get(Strings.Menu_Start,            StringsEn.Menu_Start); } }
+        public static string Menu_Stop             { get { return Get(Strings.Menu_Stop,             StringsEn.Menu_Stop); } }
+        public static string Menu_Duration         { get { return Get(Strings.Menu_Duration,         StringsEn.Menu_Duration); } }
+        public static string Menu_StartWithWindows { get { return Get(Strings.Menu_StartWithWindows, StringsEn.Menu_StartWithWindows); } }
+        public static string Menu_Quit             { get { return Get(Strings.Menu_Quit,             StringsEn.Menu_Quit); } }
+        public static string Menu_CustomMinutes(int min)
+        { return string.Format(Get(Strings.Menu_CustomMinutes, StringsEn.Menu_CustomMinutes), min); }
+        // Balloon
+        public static string Balloon_StartedTitle    { get { return Get(Strings.Balloon_StartedTitle,    StringsEn.Balloon_StartedTitle); } }
+        public static string Balloon_StoppedTitle    { get { return Get(Strings.Balloon_StoppedTitle,    StringsEn.Balloon_StoppedTitle); } }
+        public static string Balloon_StoppedText     { get { return Get(Strings.Balloon_StoppedText,     StringsEn.Balloon_StoppedText); } }
+        public static string Balloon_Expired         { get { return Get(Strings.Balloon_Expired,         StringsEn.Balloon_Expired); } }
+        public static string Balloon_75Title         { get { return Get(Strings.Balloon_75Title,         StringsEn.Balloon_75Title); } }
+        public static string Balloon_90Title         { get { return Get(Strings.Balloon_90Title,         StringsEn.Balloon_90Title); } }
+        public static string Balloon_95Title         { get { return Get(Strings.Balloon_95Title,         StringsEn.Balloon_95Title); } }
+        public static string Balloon_UrgentTitle     { get { return Get(Strings.Balloon_UrgentTitle,     StringsEn.Balloon_UrgentTitle); } }
+        public static string Balloon_StartIndefinite { get { return Get(Strings.Balloon_StartIndefinite, StringsEn.Balloon_StartIndefinite); } }
+        public static string Balloon_StartedText(string d)
+        { return string.Format(Get(Strings.Balloon_StartedText, StringsEn.Balloon_StartedText), d); }
+        public static string Balloon_StartFor(string d)
+        { return string.Format(Get(Strings.Balloon_StartFor, StringsEn.Balloon_StartFor), d); }
+        public static string Balloon_75Text(string r)
+        { return string.Format(Get(Strings.Balloon_75Text, StringsEn.Balloon_75Text), r); }
+        public static string Balloon_90Text(string r)
+        { return string.Format(Get(Strings.Balloon_90Text, StringsEn.Balloon_90Text), r); }
+        public static string Balloon_95Text(string r)
+        { return string.Format(Get(Strings.Balloon_95Text, StringsEn.Balloon_95Text), r); }
+        public static string Balloon_UrgentText(int s)
+        { return string.Format(Get(Strings.Balloon_UrgentText, StringsEn.Balloon_UrgentText), s); }
+        // Tray
+        public static string Tray_Paused { get { return Get(Strings.Tray_Paused, StringsEn.Tray_Paused); } }
+        public static string Tray_ActiveElapsed(string t)
+        { return string.Format(Get(Strings.Tray_ActiveElapsed, StringsEn.Tray_ActiveElapsed), t); }
+        public static string Tray_ActiveRemaining(string t)
+        { return string.Format(Get(Strings.Tray_ActiveRemaining, StringsEn.Tray_ActiveRemaining), t); }
+        // Messaggi
+        public static string Msg_AlreadyRunning { get { return Get(Strings.Msg_AlreadyRunning, StringsEn.Msg_AlreadyRunning); } }
+    }
+}

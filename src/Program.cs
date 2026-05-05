@@ -1,7 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using Insonnia.Properties;
+using System;
+using System.Threading;
 using System.Windows.Forms;
 
 namespace Insonnia
@@ -14,11 +13,24 @@ namespace Insonnia
         [STAThread]
         static void Main(string[] args)
         {
-            Application.EnableVisualStyles();
-            Application.SetCompatibleTextRenderingDefault(false);
+            // Blocca doppio avvio
+            bool createdNew;
+            using (var mutex = new Mutex(true, "Insonnia_SingleInstance", out createdNew))
+            {
+                if (!createdNew)
+                {
+                    MessageBox.Show(L.Msg_AlreadyRunning,
+                        "Insonnia", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    return;
+                }
 
-            bool autoStart = args != null && args.Length > 0 && string.Equals(args[0], "-s");
-            Application.Run(new Form1(autoStart));
+                Application.EnableVisualStyles();
+                Application.SetCompatibleTextRenderingDefault(false);
+
+                bool autoStart = args != null && args.Length > 0 &&
+                                 string.Equals(args[0], "-s", StringComparison.OrdinalIgnoreCase);
+                Application.Run(new Form1(autoStart));
+            }
         }
     }
 }

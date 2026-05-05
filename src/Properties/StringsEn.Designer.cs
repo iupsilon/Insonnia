@@ -1,0 +1,67 @@
+namespace Insonnia.Properties {
+    using System;
+    using System.Globalization;
+    using System.Resources;
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("manual", "1.0")]
+    internal class StringsEn {
+        private static ResourceManager resourceMan;
+        private static CultureInfo resourceCulture;
+        internal StringsEn() {}
+        internal static ResourceManager ResourceManager {
+            get {
+                if (object.ReferenceEquals(resourceMan, null))
+                    resourceMan = new ResourceManager("Insonnia.Properties.StringsEn", typeof(StringsEn).Assembly);
+                return resourceMan;
+            }
+        }
+        internal static CultureInfo Culture {
+            get { return resourceCulture; }
+            set { resourceCulture = value; }
+        }
+        internal static string Balloon_75Text { get { return ResourceManager.GetString("Balloon_75Text", resourceCulture); } }
+        internal static string Balloon_75Title { get { return ResourceManager.GetString("Balloon_75Title", resourceCulture); } }
+        internal static string Balloon_90Text { get { return ResourceManager.GetString("Balloon_90Text", resourceCulture); } }
+        internal static string Balloon_90Title { get { return ResourceManager.GetString("Balloon_90Title", resourceCulture); } }
+        internal static string Balloon_95Text { get { return ResourceManager.GetString("Balloon_95Text", resourceCulture); } }
+        internal static string Balloon_95Title { get { return ResourceManager.GetString("Balloon_95Title", resourceCulture); } }
+        internal static string Balloon_Expired { get { return ResourceManager.GetString("Balloon_Expired", resourceCulture); } }
+        internal static string Balloon_StartedText { get { return ResourceManager.GetString("Balloon_StartedText", resourceCulture); } }
+        internal static string Balloon_StartedTitle { get { return ResourceManager.GetString("Balloon_StartedTitle", resourceCulture); } }
+        internal static string Balloon_StartFor { get { return ResourceManager.GetString("Balloon_StartFor", resourceCulture); } }
+        internal static string Balloon_StartIndefinite { get { return ResourceManager.GetString("Balloon_StartIndefinite", resourceCulture); } }
+        internal static string Balloon_StoppedText { get { return ResourceManager.GetString("Balloon_StoppedText", resourceCulture); } }
+        internal static string Balloon_StoppedTitle { get { return ResourceManager.GetString("Balloon_StoppedTitle", resourceCulture); } }
+        internal static string Balloon_UrgentText { get { return ResourceManager.GetString("Balloon_UrgentText", resourceCulture); } }
+        internal static string Balloon_UrgentTitle { get { return ResourceManager.GetString("Balloon_UrgentTitle", resourceCulture); } }
+        internal static string Duration_1h { get { return ResourceManager.GetString("Duration_1h", resourceCulture); } }
+        internal static string Duration_2h { get { return ResourceManager.GetString("Duration_2h", resourceCulture); } }
+        internal static string Duration_30min { get { return ResourceManager.GetString("Duration_30min", resourceCulture); } }
+        internal static string Duration_4h { get { return ResourceManager.GetString("Duration_4h", resourceCulture); } }
+        internal static string Duration_Custom { get { return ResourceManager.GetString("Duration_Custom", resourceCulture); } }
+        internal static string Duration_Infinite { get { return ResourceManager.GetString("Duration_Infinite", resourceCulture); } }
+        internal static string Level_Exhausted { get { return ResourceManager.GetString("Level_Exhausted", resourceCulture); } }
+        internal static string Level_Happy { get { return ResourceManager.GetString("Level_Happy", resourceCulture); } }
+        internal static string Level_Off { get { return ResourceManager.GetString("Level_Off", resourceCulture); } }
+        internal static string Level_Quiet { get { return ResourceManager.GetString("Level_Quiet", resourceCulture); } }
+        internal static string Level_Weary { get { return ResourceManager.GetString("Level_Weary", resourceCulture); } }
+        internal static string Menu_CustomMinutes { get { return ResourceManager.GetString("Menu_CustomMinutes", resourceCulture); } }
+        internal static string Menu_Duration { get { return ResourceManager.GetString("Menu_Duration", resourceCulture); } }
+        internal static string Menu_Quit { get { return ResourceManager.GetString("Menu_Quit", resourceCulture); } }
+        internal static string Menu_Show { get { return ResourceManager.GetString("Menu_Show", resourceCulture); } }
+        internal static string Menu_Start { get { return ResourceManager.GetString("Menu_Start", resourceCulture); } }
+        internal static string Menu_StartWithWindows { get { return ResourceManager.GetString("Menu_StartWithWindows", resourceCulture); } }
+        internal static string Menu_Stop { get { return ResourceManager.GetString("Menu_Stop", resourceCulture); } }
+        internal static string Msg_AlreadyRunning { get { return ResourceManager.GetString("Msg_AlreadyRunning", resourceCulture); } }
+        internal static string Tray_ActiveElapsed { get { return ResourceManager.GetString("Tray_ActiveElapsed", resourceCulture); } }
+        internal static string Tray_ActiveRemaining { get { return ResourceManager.GetString("Tray_ActiveRemaining", resourceCulture); } }
+        internal static string Tray_Paused { get { return ResourceManager.GetString("Tray_Paused", resourceCulture); } }
+        internal static string UI_BtnStart { get { return ResourceManager.GetString("UI_BtnStart", resourceCulture); } }
+        internal static string UI_BtnStop { get { return ResourceManager.GetString("UI_BtnStop", resourceCulture); } }
+        internal static string UI_LabelDuration { get { return ResourceManager.GetString("UI_LabelDuration", resourceCulture); } }
+        internal static string UI_LabelMinutes { get { return ResourceManager.GetString("UI_LabelMinutes", resourceCulture); } }
+        internal static string UI_StatusActive { get { return ResourceManager.GetString("UI_StatusActive", resourceCulture); } }
+        internal static string UI_StatusPaused { get { return ResourceManager.GetString("UI_StatusPaused", resourceCulture); } }
+        internal static string UI_StatusTimer { get { return ResourceManager.GetString("UI_StatusTimer", resourceCulture); } }
+        internal static string UI_Title { get { return ResourceManager.GetString("UI_Title", resourceCulture); } }
+    }
+}

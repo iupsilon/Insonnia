@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+
+  <!-- Levels -->
+  <data name="Level_Off"      xml:space="preserve"><value>Idle</value></data>
+  <data name="Level_Quiet"    xml:space="preserve"><value>Awake</value></data>
+  <data name="Level_Happy"    xml:space="preserve"><value>Active</value></data>
+  <data name="Level_Weary"    xml:space="preserve"><value>Tired</value></data>
+  <data name="Level_Exhausted" xml:space="preserve"><value>Exhausted</value></data>
+
+  <!-- Main UI -->
+  <data name="UI_Title"          xml:space="preserve"><value>&#x2615; Insonnia</value></data>
+  <data name="UI_LabelDuration"  xml:space="preserve"><value>Duration:</value></data>
+  <data name="UI_LabelMinutes"   xml:space="preserve"><value>min</value></data>
+  <data name="UI_BtnStart"       xml:space="preserve"><value>&#x25B6;  Start</value></data>
+  <data name="UI_BtnStop"        xml:space="preserve"><value>&#x25A0;  Stop</value></data>
+  <data name="UI_StatusPaused"   xml:space="preserve"><value>Paused</value></data>
+  <data name="UI_StatusActive"   xml:space="preserve"><value>&#x2615; {0}  &#x2014;  Active for: {1}</value></data>
+  <data name="UI_StatusTimer"    xml:space="preserve"><value>&#x23F1; {0}  &#x2014;  Remaining: {1}</value></data>
+
+  <!-- Duration combo -->
+  <data name="Duration_Infinite"    xml:space="preserve"><value>&#x221E;  Always on</value></data>
+  <data name="Duration_30min"       xml:space="preserve"><value>30 minutes</value></data>
+  <data name="Duration_1h"          xml:space="preserve"><value>1 hour</value></data>
+  <data name="Duration_2h"          xml:space="preserve"><value>2 hours</value></data>
+  <data name="Duration_4h"          xml:space="preserve"><value>4 hours</value></data>
+  <data name="Duration_Custom"      xml:space="preserve"><value>Custom...</value></data>
+
+  <!-- Context menu -->
+  <data name="Menu_Show"             xml:space="preserve"><value>Show...</value></data>
+  <data name="Menu_Start"            xml:space="preserve"><value>&#x25B6;  Start</value></data>
+  <data name="Menu_Stop"             xml:space="preserve"><value>&#x25A0;  Pause</value></data>
+  <data name="Menu_Duration"         xml:space="preserve"><value>Duration</value></data>
+  <data name="Menu_StartWithWindows" xml:space="preserve"><value>Start with Windows</value></data>
+  <data name="Menu_Quit"             xml:space="preserve"><value>Quit</value></data>
+  <data name="Menu_CustomMinutes"    xml:space="preserve"><value>Custom: {0} min</value></data>
+
+  <!-- Balloon tip -->
+  <data name="Balloon_StartedTitle"    xml:space="preserve"><value>Started</value></data>
+  <data name="Balloon_StartedText"     xml:space="preserve"><value>Insonnia active {0}</value></data>
+  <data name="Balloon_StartFor"        xml:space="preserve"><value>for {0}</value></data>
+  <data name="Balloon_StartIndefinite" xml:space="preserve"><value>indefinitely</value></data>
+  <data name="Balloon_StoppedTitle"    xml:space="preserve"><value>Stopped</value></data>
+  <data name="Balloon_StoppedText"     xml:space="preserve"><value>Insonnia deactivated</value></data>
+  <data name="Balloon_Expired"         xml:space="preserve"><value>&#x23F0; Time's up &#x2014; good night!</value></data>
+  <data name="Balloon_75Title"         xml:space="preserve"><value>Almost there</value></data>
+  <data name="Balloon_75Text"          xml:space="preserve"><value>&#x23F3; Remaining: {0}</value></data>
+  <data name="Balloon_90Title"         xml:space="preserve"><value>Getting close</value></data>
+  <data name="Balloon_90Text"          xml:space="preserve"><value>&#x26A0; Less than {0} left</value></data>
+  <data name="Balloon_95Title"         xml:space="preserve"><value>Almost expired</value></data>
+  <data name="Balloon_95Text"          xml:space="preserve"><value>&#x1F514; Expires in {0}</value></data>
+  <data name="Balloon_UrgentTitle"     xml:space="preserve"><value>Expiring soon!</value></data>
+  <data name="Balloon_UrgentText"      xml:space="preserve"><value>&#x23F0; Insonnia stops in {0} seconds</value></data>
+
+  <!-- Tray tooltip -->
+  <data name="Tray_Paused"            xml:space="preserve"><value>Insonnia - Paused</value></data>
+  <data name="Tray_ActiveElapsed"     xml:space="preserve"><value>Insonnia &#x2014; Active for: {0}</value></data>
+  <data name="Tray_ActiveRemaining"   xml:space="preserve"><value>Insonnia &#x2014; Remaining: {0}</value></data>
+
+  <!-- Mutex / startup -->
+  <data name="Msg_AlreadyRunning" xml:space="preserve"><value>Insonnia is already running.</value></data>
+</root>
+
