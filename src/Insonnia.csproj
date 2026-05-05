@@ -13,6 +13,7 @@
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
     <Deterministic>true</Deterministic>
     <TargetFrameworkProfile />
+    <RuntimeIdentifiers>win</RuntimeIdentifiers>
     <GenerateResourceUsePreserializedResources>true</GenerateResourceUsePreserializedResources>
     <ResolveNuGetPackages>false</ResolveNuGetPackages>
   </PropertyGroup>
