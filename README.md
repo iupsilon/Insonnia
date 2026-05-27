@@ -13,6 +13,7 @@
 - 💤 **Idle auto-suspend** *(optional)* — if you walk away, releases the lock after N idle minutes so the PC can sleep, then resumes automatically on the next keyboard/mouse activity
 - 🔔 **Progressive balloon notifications** as the timer approaches expiry
 - 📊 **Live progress bar** with color feedback (green → orange → red)
+- 🟢 **Dynamic tray icon** — a progress ring around the icon depletes and changes color as the timer runs (pulses when about to expire)
 - 🕐 **Elapsed / remaining time** shown in real time in the form and tray tooltip
 - 🌍 **Bilingual UI** — Italian and English, auto-detected from Windows language
 - 💾 **Persistent settings** — last duration and custom minutes are remembered across restarts
@@ -116,7 +117,11 @@ The tray icon changes based on how long the PC has been kept awake:
 | 😩 Weary | Tired | 4 h |
 | 😵 Exhausted | Exhausted | — |
 
-In timer mode, icons show a small **clock overlay** to distinguish them from the standard mode.
+The tray icon is **rendered dynamically** around the mood glyph to reflect the current state:
+
+- **Timer mode** — a **progress ring** depletes clockwise as time runs out, shifting **green → amber → red**, and pulses red in the final minute.
+- **Always-on mode** — a full, steady **blue ring** (active, no countdown).
+- **Idle-suspended** — the glyph is **dimmed** with a small **moon badge** (keep-awake released, the PC may sleep).
 
 ---
 
