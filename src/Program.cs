@@ -29,7 +29,7 @@ namespace Insonnia
 
                 bool autoStart = args != null && args.Length > 0 &&
                                  string.Equals(args[0], "-s", StringComparison.OrdinalIgnoreCase);
-                Application.Run(new Form1(autoStart));
+                Application.Run(new MainForm(autoStart));
             }
         }
     }

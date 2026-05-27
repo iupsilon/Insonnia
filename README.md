@@ -10,6 +10,7 @@
 
 - 🖥️ **Prevents sleep and display shutoff** via Windows API
 - ⏱️ **Configurable duration** — always-on or with an auto-stop timer
+- 💤 **Idle auto-suspend** *(optional)* — if you walk away, releases the lock after N idle minutes so the PC can sleep, then resumes automatically on the next keyboard/mouse activity
 - 🔔 **Progressive balloon notifications** as the timer approaches expiry
 - 📊 **Live progress bar** with color feedback (green → orange → red)
 - 🕐 **Elapsed / remaining time** shown in real time in the form and tray tooltip
@@ -42,6 +43,7 @@ No installer required. Download the latest release, extract and run `Insonnia.ex
 |---|---|
 | **Duration** combo | Choose how long to keep the PC awake |
 | **Custom minutes** field | Appears when "Custom..." is selected — enter any value from 1 to 999 minutes |
+| **Suspend if idle** check + minutes | When enabled, releases keep-awake after the given idle minutes (1–240) and resumes on activity |
 | **▶ Start** | Activates keep-awake with the selected duration |
 | **■ Stop** | Deactivates keep-awake immediately |
 | Status label | Shows current level, elapsed time (∞ mode) or remaining time (timer mode) |
@@ -67,6 +69,7 @@ Right-click the tray icon to access:
 | **Show...** | Brings the main window to front |
 | **▶ Start / ■ Stop** | Toggles keep-awake (mirrors the form buttons) |
 | **Duration ▶** | Submenu to select duration without opening the form |
+| **Idle suspend ▶** | Submenu to set the idle auto-suspend threshold (Off / 10 / 20 / 30 / 60 min / Custom) |
 | **Start with Windows** | Toggles auto-launch at Windows login |
 | **Quit** | Fully exits the application |
 
@@ -144,6 +147,15 @@ This is the same mechanism used by media players and presentation software to pr
 
 > **Note:** `ES_AWAYMODE_REQUIRED` is intentionally **not used** — it is reserved for media server scenarios and may interfere with corporate policies.
 
+### Idle auto-suspend
+
+When the optional **Suspend if idle** threshold is set, Insonnia polls the system idle time (Windows `GetLastInputInfo`) once per second while active:
+
+- After the configured minutes with **no keyboard or mouse activity**, it **releases** the keep-awake lock — the PC can then sleep according to your normal Windows power settings. The session stays *armed* (the tray icon goes back to its calm state and a "Suspended" balloon appears).
+- On the **first input** after that, the lock is **re-acquired** automatically and a "Resumed" balloon appears.
+
+The duration countdown keeps running on wall-clock time while suspended, so a finite timer can still expire and stop the session even if you never come back.
+
 ---
 
 ## 💾 Persistent Settings
@@ -154,6 +166,7 @@ The following preferences are automatically saved and restored on next launch:
 |---|---|
 | **Selected duration** | The last duration option chosen (e.g. "1 hour") |
 | **Custom minutes** | The last custom duration value entered |
+| **Idle suspend** | Whether idle auto-suspend is enabled, and its threshold in minutes |
 
 Settings are stored in `%APPDATA%\Insonnia\` via the standard .NET `ApplicationSettingsBase` mechanism.
 
@@ -163,8 +176,8 @@ Settings are stored in `%APPDATA%\Insonnia\` via the standard .NET `ApplicationS
 
 ```
 src/
-├── Form1.cs               # Main form logic
-├── Form1.Designer.cs      # UI layout
+├── MainForm.cs            # Main form logic
+├── MainForm.Designer.cs   # UI layout
 ├── InsonniaLevel.cs       # Activity level definitions + timer icons
 ├── Win32Interop.cs        # SetThreadExecutionState P/Invoke
 ├── Extensions.cs          # Bitmap → Icon helper

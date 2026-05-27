@@ -3,7 +3,7 @@ using Insonnia.Properties;
 
 namespace Insonnia
 {
-    partial class Form1
+    partial class MainForm
     {
         private System.ComponentModel.IContainer components = null;
 
@@ -11,6 +11,8 @@ namespace Insonnia
         {
             if (disposing && (components != null))
                 components.Dispose();
+            if (disposing)
+                DisposeDynamicIcon();
             base.Dispose(disposing);
         }
 
@@ -24,6 +26,7 @@ namespace Insonnia
             this.showToolStripMenuItem    = new System.Windows.Forms.ToolStripMenuItem();
             this.startStopMenuItem        = new System.Windows.Forms.ToolStripMenuItem();
             this.durationMenuItem         = new System.Windows.Forms.ToolStripMenuItem();
+            this.idleMenuItem             = new System.Windows.Forms.ToolStripMenuItem();
             this.startWithWindowsMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripMenuItem1       = new System.Windows.Forms.ToolStripSeparator();
             this.quitToolStripMenuItem    = new System.Windows.Forms.ToolStripMenuItem();
@@ -38,6 +41,12 @@ namespace Insonnia
             this.nudCustomMinutes  = new System.Windows.Forms.NumericUpDown();
             this.lblMinutes        = new System.Windows.Forms.Label();
 
+            // Riga inattività
+            this.panelIdle         = new System.Windows.Forms.Panel();
+            this.chkIdleSuspend    = new System.Windows.Forms.CheckBox();
+            this.nudIdleMinutes    = new System.Windows.Forms.NumericUpDown();
+            this.lblIdleMinutes    = new System.Windows.Forms.Label();
+
             // Riga status
             this.panelStatus       = new System.Windows.Forms.Panel();
             this.progressTimer     = new System.Windows.Forms.ProgressBar();
@@ -51,8 +60,10 @@ namespace Insonnia
             this.contextMenu.SuspendLayout();
             this.tableLayoutPanel1.SuspendLayout();
             this.panelDuration.SuspendLayout();
+            this.panelIdle.SuspendLayout();
             this.panelStatus.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.nudCustomMinutes)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.nudIdleMinutes)).BeginInit();
             this.SuspendLayout();
 
             // ── notifyIcon ──────────────────────────────────────────────
@@ -67,6 +78,7 @@ namespace Insonnia
                 this.showToolStripMenuItem,
                 this.startStopMenuItem,
                 this.durationMenuItem,
+                this.idleMenuItem,
                 this.startWithWindowsMenuItem,
                 this.toolStripMenuItem1,
                 this.quitToolStripMenuItem });
@@ -86,6 +98,10 @@ namespace Insonnia
             this.durationMenuItem.Name = "durationMenuItem";
             this.durationMenuItem.Text = L.Menu_Duration;
 
+            // idle: sottomenu popolato a runtime da RebuildIdleMenu()
+            this.idleMenuItem.Name = "idleMenuItem";
+            this.idleMenuItem.Text = L.Menu_IdleSuspend;
+
             this.startWithWindowsMenuItem.Name  = "startWithWindowsMenuItem";
             this.startWithWindowsMenuItem.Text  = L.Menu_StartWithWindows;
             this.startWithWindowsMenuItem.Click += new System.EventHandler(this.startWithWindowsMenuItem_Click);
@@ -100,16 +116,18 @@ namespace Insonnia
             this.tableLayoutPanel1.Dock        = System.Windows.Forms.DockStyle.Fill;
             this.tableLayoutPanel1.ColumnCount = 1;
             this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.tableLayoutPanel1.RowCount    = 4;
+            this.tableLayoutPanel1.RowCount    = 5;
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 56F));
+            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 42F));
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 42F));
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 50F));
             this.tableLayoutPanel1.Controls.Add(this.lblTitle,       0, 0);
             this.tableLayoutPanel1.Controls.Add(this.panelDuration,  0, 1);
-            this.tableLayoutPanel1.Controls.Add(this.panelStatus,    0, 2);
-            this.tableLayoutPanel1.Controls.Add(this.btnStart,       0, 3);
-            this.tableLayoutPanel1.Controls.Add(this.btnStop,        0, 3);
+            this.tableLayoutPanel1.Controls.Add(this.panelIdle,      0, 2);
+            this.tableLayoutPanel1.Controls.Add(this.panelStatus,    0, 3);
+            this.tableLayoutPanel1.Controls.Add(this.btnStart,       0, 4);
+            this.tableLayoutPanel1.Controls.Add(this.btnStop,        0, 4);
             this.tableLayoutPanel1.Location  = new System.Drawing.Point(0, 0);
             this.tableLayoutPanel1.Name      = "tableLayoutPanel1";
             this.tableLayoutPanel1.Padding   = new System.Windows.Forms.Padding(8);
@@ -165,6 +183,41 @@ namespace Insonnia
             this.lblMinutes.Name      = "lblMinutes";
             this.lblMinutes.Text      = L.UI_LabelMinutes;
             this.lblMinutes.Visible   = false;
+
+            // ── panelIdle ─────────────────────────────────────────────────
+            this.panelIdle.Dock     = System.Windows.Forms.DockStyle.Fill;
+            this.panelIdle.Name     = "panelIdle";
+            this.panelIdle.Controls.Add(this.lblIdleMinutes);
+            this.panelIdle.Controls.Add(this.nudIdleMinutes);
+            this.panelIdle.Controls.Add(this.chkIdleSuspend);
+
+            // ── chkIdleSuspend ────────────────────────────────────────────
+            this.chkIdleSuspend.AutoSize = true;
+            this.chkIdleSuspend.Font     = new System.Drawing.Font("Segoe UI", 9F);
+            this.chkIdleSuspend.Location = new System.Drawing.Point(4, 11);
+            this.chkIdleSuspend.Name     = "chkIdleSuspend";
+            this.chkIdleSuspend.Text     = L.UI_IdleSuspendLabel;
+            this.chkIdleSuspend.TabIndex = 3;
+            this.chkIdleSuspend.UseVisualStyleBackColor = true;
+            this.chkIdleSuspend.CheckedChanged += new System.EventHandler(this.chkIdleSuspend_CheckedChanged);
+
+            // ── nudIdleMinutes ────────────────────────────────────────────
+            this.nudIdleMinutes.Font     = new System.Drawing.Font("Segoe UI", 9F);
+            this.nudIdleMinutes.Location = new System.Drawing.Point(190, 9);
+            this.nudIdleMinutes.Minimum  = new decimal(new int[] { 1, 0, 0, 0 });
+            this.nudIdleMinutes.Maximum  = new decimal(new int[] { 240, 0, 0, 0 });
+            this.nudIdleMinutes.Value    = new decimal(new int[] { 20, 0, 0, 0 });
+            this.nudIdleMinutes.Width    = 55;
+            this.nudIdleMinutes.Name     = "nudIdleMinutes";
+            this.nudIdleMinutes.TabIndex = 4;
+            this.nudIdleMinutes.ValueChanged += new System.EventHandler(this.nudIdleMinutes_ValueChanged);
+
+            // ── lblIdleMinutes ────────────────────────────────────────────
+            this.lblIdleMinutes.AutoSize  = true;
+            this.lblIdleMinutes.Font      = new System.Drawing.Font("Segoe UI", 9F);
+            this.lblIdleMinutes.Location  = new System.Drawing.Point(249, 12);
+            this.lblIdleMinutes.Name      = "lblIdleMinutes";
+            this.lblIdleMinutes.Text      = L.UI_LabelMinutes;
 
             // ── panelStatus ───────────────────────────────────────────────
             this.panelStatus.Dock     = System.Windows.Forms.DockStyle.Fill;
@@ -222,26 +275,29 @@ namespace Insonnia
             this.btnStop.UseVisualStyleBackColor = false;
             this.btnStop.Click           += new System.EventHandler(this.btnStop_Click);
 
-            // ── Form1 ─────────────────────────────────────────────────────
+            // ── MainForm ──────────────────────────────────────────────────
             this.AutoScaleDimensions = new System.Drawing.SizeF(96F, 96F);
             this.AutoScaleMode       = System.Windows.Forms.AutoScaleMode.Dpi;
-            this.ClientSize          = new System.Drawing.Size(400, 260);
+            this.ClientSize          = new System.Drawing.Size(400, 302);
             this.Controls.Add(this.tableLayoutPanel1);
             this.FormBorderStyle     = System.Windows.Forms.FormBorderStyle.FixedSingle;
             this.MaximizeBox         = false;
             this.MinimizeBox         = true;
-            this.Name                = "Form1";
+            this.Name                = "MainForm";
             this.StartPosition       = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text                = "Insonnia";
-            this.Resize             += new System.EventHandler(this.Form1_Resize);
-            this.FormClosing        += new System.Windows.Forms.FormClosingEventHandler(this.Form1_FormClosing);
+            this.Resize             += new System.EventHandler(this.MainForm_Resize);
+            this.FormClosing        += new System.Windows.Forms.FormClosingEventHandler(this.MainForm_FormClosing);
 
             this.contextMenu.ResumeLayout(false);
             this.panelDuration.ResumeLayout(false);
             this.panelDuration.PerformLayout();
+            this.panelIdle.ResumeLayout(false);
+            this.panelIdle.PerformLayout();
             this.panelStatus.ResumeLayout(false);
             this.tableLayoutPanel1.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.nudCustomMinutes)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.nudIdleMinutes)).EndInit();
             this.ResumeLayout(false);
         }
 
@@ -252,6 +308,7 @@ namespace Insonnia
         private System.Windows.Forms.ToolStripMenuItem showToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem startStopMenuItem;
         private System.Windows.Forms.ToolStripMenuItem durationMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem idleMenuItem;
         private System.Windows.Forms.ToolStripSeparator toolStripMenuItem1;
         private System.Windows.Forms.ToolStripMenuItem quitToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem startWithWindowsMenuItem;
@@ -262,6 +319,10 @@ namespace Insonnia
         private System.Windows.Forms.ComboBox cmbDuration;
         private System.Windows.Forms.NumericUpDown nudCustomMinutes;
         private System.Windows.Forms.Label lblMinutes;
+        private System.Windows.Forms.Panel panelIdle;
+        private System.Windows.Forms.CheckBox chkIdleSuspend;
+        private System.Windows.Forms.NumericUpDown nudIdleMinutes;
+        private System.Windows.Forms.Label lblIdleMinutes;
         private System.Windows.Forms.Panel panelStatus;
         private System.Windows.Forms.ProgressBar progressTimer;
         private System.Windows.Forms.Label lblStatus;

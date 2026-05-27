@@ -15,6 +15,13 @@ namespace Insonnia
         // ES_USER_PRESENT = 0x00000004
     }
 
+    [StructLayout(LayoutKind.Sequential)]
+    internal struct LASTINPUTINFO
+    {
+        public uint cbSize;
+        public uint dwTime;
+    }
+
     internal static class Win32Interop
     {
         // https://stackoverflow.com/questions/49045701/prevent-screen-from-sleeping-with-c-sharp
@@ -24,5 +31,19 @@ namespace Insonnia
 
         [DllImport("user32.dll", CharSet = CharSet.Auto)]
         public extern static bool DestroyIcon(IntPtr handle);
+
+        [DllImport("user32.dll")]
+        [return: MarshalAs(UnmanagedType.Bool)]
+        private static extern bool GetLastInputInfo(ref LASTINPUTINFO plii);
+
+        /// <summary>Millisecondi trascorsi dall'ultimo input tastiera/mouse. 0 se fallisce.</summary>
+        public static uint GetIdleTime()
+        {
+            LASTINPUTINFO lii = new LASTINPUTINFO();
+            lii.cbSize = (uint)Marshal.SizeOf(typeof(LASTINPUTINFO));
+            if (!GetLastInputInfo(ref lii)) return 0;
+            // unchecked: la sottrazione resta corretta anche al wrap a 32 bit di TickCount (~49.7 giorni)
+            return unchecked((uint)Environment.TickCount - lii.dwTime);
+        }
     }
 }

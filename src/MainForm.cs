@@ -8,7 +8,7 @@ using Insonnia.Properties;
 
 namespace Insonnia
 {
-    public partial class Form1 : Form
+    public partial class MainForm : Form
     {
         // ── costanti ────────────────────────────────────────────────────
         private const string RunRegKey  = @"Software\Microsoft\Windows\CurrentVersion\Run";
@@ -21,16 +21,22 @@ namespace Insonnia
         private const int    UrgentEvery = 15;
 
         // ── stato ────────────────────────────────────────────────────────
-        private bool      _keepAwake       = false;
+        private bool      _keepAwake       = false;   // sessione armata (Avvia premuto)
         private DateTime? _insonniaStarted = null;
         private TimeSpan? _maxDuration     = null;
+
+        // ── sospensione per inattività ─────────────────────────────────────
+        // _idleThreshold null = funzione disattivata per questa sessione.
+        // _idleSuspended  true = sessione armata ma lock rilasciato perché inattivo.
+        // Il lock è tenuto sse: _keepAwake && !_idleSuspended.
+        private TimeSpan? _idleThreshold = null;
+        private bool      _idleSuspended = false;
 
         private System.Windows.Forms.Timer _uiTimer;
         private int _tickCount = 0;
 
         private readonly HashSet<string> _notifiedKeys = new HashSet<string>();
         private int  _lastUrgentNotifySec = int.MinValue;
-        private bool _blinkState  = false;
         private bool _forceClose  = false;
 
         // ── durata combo ─────────────────────────────────────────────────
@@ -64,8 +70,14 @@ namespace Insonnia
         // ultimo valore custom usato (in minuti), per mostrarlo nel menu tray
         private int _lastCustomMinutes = 45;
 
+        // ── soglie inattività ──────────────────────────────────────────────
+        // Preset offerti dal menu tray; il menu aggiorna direttamente i controlli del form.
+        private static readonly int[] IdlePresets = { 10, 20, 30, 60 };
+        // ultimo valore inattività usato (in minuti), per la voce "Personalizzato" del menu
+        private int _lastIdleMinutes = 20;
+
         // ────────────────────────────────────────────────────────────────
-        public Form1(bool autoStart)
+        public MainForm(bool autoStart)
         {
             InitializeComponent();
 
@@ -81,6 +93,13 @@ namespace Insonnia
             cmbDuration.SelectedIndex = (savedIdx >= 0 && savedIdx < cmbDuration.Items.Count)
                 ? savedIdx : 0;
 
+            // Sospensione per inattività (letta prima dell'eventuale autostart)
+            _lastIdleMinutes        = Settings.Default.IdleThresholdMinutes;
+            nudIdleMinutes.Value    = Math.Max(nudIdleMinutes.Minimum,
+                                     Math.Min(nudIdleMinutes.Maximum,
+                                     (decimal)_lastIdleMinutes));
+            chkIdleSuspend.Checked  = Settings.Default.IdleSuspendEnabled;
+
             _uiTimer          = new System.Windows.Forms.Timer();
             _uiTimer.Interval = 1000;
             _uiTimer.Tick    += UiTimer_Tick;
@@ -89,6 +108,7 @@ namespace Insonnia
             UpdateStatusDisplay(TimeSpan.Zero);
             UpdateStartWithWindowsMenu();
             RebuildDurationMenu();
+            RebuildIdleMenu();
             SetTrayIcon(InsonniaLevel.GetCurrent(TimeSpan.Zero).Icon);
 
             // Versione assembly
@@ -110,19 +130,55 @@ namespace Insonnia
             TimeSpan elapsed = DateTime.Now - _insonniaStarted.Value;
 
             _tickCount++;
-            if (_tickCount % 60 == 0)
+
+            // ── Macchina a stati inattività ──────────────────────────────
+            if (_idleThreshold.HasValue)
+            {
+                uint idleMs = Win32Interop.GetIdleTime();
+                if (!_idleSuspended && idleMs >= _idleThreshold.Value.TotalMilliseconds)
+                    EnterIdleSuspend();
+                else if (_idleSuspended && idleMs < _idleThreshold.Value.TotalMilliseconds)
+                    ResumeFromIdle();
+            }
+
+            // Rinnova il lock ogni 60 tick, ma solo se lo stiamo davvero tenendo
+            if (!_idleSuspended && _tickCount % 60 == 0)
                 Win32Interop.SetThreadExecutionState(
                     EXECUTION_STATE.ES_CONTINUOUS | EXECUTION_STATE.ES_DISPLAY_REQUIRED);
 
             InsonniaLevel level = InsonniaLevel.GetCurrent(elapsed);
             bool timerMode = _maxDuration.HasValue;
-            SetTrayIcon(timerMode ? level.TimerIcon : level.Icon);
+            if (_idleSuspended)
+            {
+                SetTrayIconDynamic(TrayIconRenderer.IdleSuspended(level.Source));
+            }
+            else if (timerMode)
+            {
+                double ratio  = elapsed.TotalSeconds / _maxDuration.Value.TotalSeconds;
+                bool   urgent = (_maxDuration.Value - elapsed).TotalSeconds <= UrgentSecs;
+                SetTrayIconDynamic(TrayIconRenderer.Timer(level.Source, ratio, urgent, _tickCount % 2 == 0));
+            }
+            else
+            {
+                SetTrayIconDynamic(TrayIconRenderer.Active(level.Source));
+            }
 
             UpdateStatusDisplay(elapsed);
             UpdateTrayTooltip(elapsed);
 
             if (timerMode)
-                HandleTimerNotifications(elapsed);
+            {
+                // La scadenza ferma la sessione in entrambi gli stati (anche da sospeso:
+                // al risveglio del PC il tempo trascorso può aver superato la durata)
+                if (elapsed >= _maxDuration.Value)
+                {
+                    StopInsonnia(L.Balloon_Expired);
+                    return;
+                }
+                // Notifiche progressive e lampeggio solo quando il lock è attivo
+                if (!_idleSuspended)
+                    HandleTimerNotifications(elapsed);
+            }
         }
 
         // ── start / stop ─────────────────────────────────────────────────
@@ -141,11 +197,16 @@ namespace Insonnia
             if (_trayDurationIndex >= 0 && _trayDurationIndex != CustomDurationIndex)
                 cmbDuration.SelectedIndex = _trayDurationIndex;
 
+            // ── Soglia di inattività (letta dai controlli del form) ──
+            _idleThreshold = chkIdleSuspend.Checked
+                ? TimeSpan.FromMinutes((double)nudIdleMinutes.Value)
+                : (TimeSpan?)null;
+            _idleSuspended = false;
+
             _insonniaStarted     = DateTime.Now;
             _tickCount           = 0;
             _notifiedKeys.Clear();
             _lastUrgentNotifySec = int.MinValue;
-            _blinkState          = false;
 
             Win32Interop.SetThreadExecutionState(
                 EXECUTION_STATE.ES_CONTINUOUS | EXECUTION_STATE.ES_DISPLAY_REQUIRED);
@@ -170,6 +231,8 @@ namespace Insonnia
             _insonniaStarted = null;
             _maxDuration     = null;
             _trayDurationIndex = -1;
+            _idleThreshold   = null;
+            _idleSuspended   = false;
 
             Win32Interop.SetThreadExecutionState(EXECUTION_STATE.ES_CONTINUOUS);
 
@@ -189,6 +252,26 @@ namespace Insonnia
             StopInsonnia(L.Balloon_StoppedText);
         }
 
+        // ── sospensione per inattività ─────────────────────────────────────
+        /// <summary>Inattivo oltre soglia: rilascia il lock, il PC può dormire (sessione ancora armata).</summary>
+        private void EnterIdleSuspend()
+        {
+            _idleSuspended = true;
+            Win32Interop.SetThreadExecutionState(EXECUTION_STATE.ES_CONTINUOUS);
+            InsonniaLevel level = InsonniaLevel.GetCurrent(DateTime.Now - _insonniaStarted.Value);
+            SetTrayIconDynamic(TrayIconRenderer.IdleSuspended(level.Source));
+            ShowBalloon(L.Balloon_IdleSuspendTitle, L.Balloon_IdleSuspendText, ToolTipIcon.Info, 2500);
+        }
+
+        /// <summary>Attività rilevata: riacquisisce il lock e riprende il keep-awake.</summary>
+        private void ResumeFromIdle()
+        {
+            _idleSuspended = false;
+            Win32Interop.SetThreadExecutionState(
+                EXECUTION_STATE.ES_CONTINUOUS | EXECUTION_STATE.ES_DISPLAY_REQUIRED);
+            ShowBalloon(L.Balloon_IdleResumeTitle, L.Balloon_IdleResumeText, ToolTipIcon.Info, 2000);
+        }
+
         // ── notifiche timer progressive ───────────────────────────────────
         private void HandleTimerNotifications(TimeSpan elapsed)
         {
@@ -198,12 +281,7 @@ namespace Insonnia
             double elapsedSecs   = elapsed.TotalSeconds;
             double ratio         = elapsedSecs / totalSecs;
             double remainingSecs = totalSecs - elapsedSecs;
-
-            if (elapsed >= _maxDuration.Value)
-            {
-                StopInsonnia(L.Balloon_Expired);
-                return;
-            }
+            // La scadenza è gestita centralmente in UiTimer_Tick.
 
             TryNotify("75pct",
                 ratio >= Threshold75 && ratio < Threshold90,
@@ -225,12 +303,7 @@ namespace Insonnia
 
             if (remainingSecs <= UrgentSecs && remainingSecs > 0)
             {
-                // Lampeggio icona tray
-                _blinkState = !_blinkState;
-                InsonniaLevel lvl = InsonniaLevel.GetCurrent(elapsed);
-                notifyIcon.Icon = _blinkState ? null : lvl.TimerIcon;
-                if (!_blinkState) notifyIcon.Icon = lvl.TimerIcon;
-
+                // Il lampeggio è ora reso dall'anello pulsante (vedi UiTimer_Tick + TrayIconRenderer)
                 int secInt = (int)remainingSecs;
                 bool firstUrgent    = _lastUrgentNotifySec == int.MinValue;
                 bool intervalPassed = (_lastUrgentNotifySec - secInt) >= UrgentEvery;
@@ -263,10 +336,15 @@ namespace Insonnia
             nudCustomMinutes.Enabled    = !_keepAwake;
             progressTimer.Visible       = false;
 
+            // Configurazione inattività modificabile solo a sessione ferma (come la durata)
+            chkIdleSuspend.Enabled = !_keepAwake;
+            nudIdleMinutes.Enabled = !_keepAwake && chkIdleSuspend.Checked;
+
             // Aggiorna voce tray start/stop
             startStopMenuItem.Text = _keepAwake ? L.Menu_Stop : L.Menu_Start;
-            // Durata selezionabile solo se non attivo
+            // Durata e inattività selezionabili solo se non attivo
             durationMenuItem.Enabled = !_keepAwake;
+            idleMenuItem.Enabled     = !_keepAwake;
         }
 
         private void UpdateStatusDisplay(TimeSpan elapsed)
@@ -275,6 +353,14 @@ namespace Insonnia
             {
                 lblStatus.Text      = L.UI_StatusPaused;
                 lblStatus.ForeColor = Color.Gray;
+                progressTimer.Visible = false;
+                return;
+            }
+
+            if (_idleSuspended)
+            {
+                lblStatus.Text        = L.UI_StatusIdleSuspended;
+                lblStatus.ForeColor   = Color.SlateGray;
                 progressTimer.Visible = false;
                 return;
             }
@@ -313,7 +399,11 @@ namespace Insonnia
         private void UpdateTrayTooltip(TimeSpan elapsed)
         {
             string tip;
-            if (_maxDuration.HasValue)
+            if (_idleSuspended)
+            {
+                tip = L.Tray_IdleSuspended;
+            }
+            else if (_maxDuration.HasValue)
             {
                 TimeSpan remaining = _maxDuration.Value - elapsed;
                 if (remaining < TimeSpan.Zero) remaining = TimeSpan.Zero;
@@ -326,9 +416,32 @@ namespace Insonnia
             notifyIcon.Text = tip.Length > 63 ? tip.Substring(0, 63) : tip;
         }
 
+        // Icona dinamica corrente (anello/lunetta): va liberata, a differenza di quelle statiche.
+        private Icon _dynamicTrayIcon;
+
+        /// <summary>Imposta un'icona statica condivisa (non va liberata) e scarta l'eventuale dinamica.</summary>
         private void SetTrayIcon(Icon icon)
         {
             this.Icon = notifyIcon.Icon = icon;
+            DisposeDynamicIcon();
+        }
+
+        /// <summary>Imposta un'icona generata a runtime, liberando la precedente per non perdere handle GDI.</summary>
+        private void SetTrayIconDynamic(Icon dyn)
+        {
+            Icon previous = _dynamicTrayIcon;
+            this.Icon = notifyIcon.Icon = dyn;
+            _dynamicTrayIcon = dyn;
+            if (previous != null) previous.Dispose();
+        }
+
+        private void DisposeDynamicIcon()
+        {
+            if (_dynamicTrayIcon != null)
+            {
+                _dynamicTrayIcon.Dispose();
+                _dynamicTrayIcon = null;
+            }
         }
 
         private void ShowBalloon(string title, string text, ToolTipIcon icon, int ms)
@@ -401,6 +514,56 @@ namespace Insonnia
             durationMenuItem.DropDownItems.Add(customItem);
         }
 
+        /// <summary>Ricostruisce il sottomenu "Sospensione inattività" del tray icon.</summary>
+        private void RebuildIdleMenu()
+        {
+            idleMenuItem.DropDownItems.Clear();
+
+            bool enabled = chkIdleSuspend.Checked;
+            int  current = (int)nudIdleMinutes.Value;
+
+            // Voce "Disattivato"
+            System.Windows.Forms.ToolStripMenuItem offItem =
+                new System.Windows.Forms.ToolStripMenuItem(L.Menu_IdleOff);
+            offItem.Checked = !enabled;
+            offItem.Click  += delegate(object s, EventArgs e2)
+            {
+                chkIdleSuspend.Checked = false;   // i *_Changed persistono e ricostruiscono
+            };
+            idleMenuItem.DropDownItems.Add(offItem);
+
+            // Preset 10/20/30/60 min
+            bool isPreset = false;
+            foreach (int minutes in IdlePresets)
+            {
+                int captured = minutes;
+                if (enabled && current == captured) isPreset = true;
+                System.Windows.Forms.ToolStripMenuItem item =
+                    new System.Windows.Forms.ToolStripMenuItem(L.Menu_IdleMinutes(captured));
+                item.Checked = enabled && current == captured;
+                item.Click  += delegate(object s, EventArgs e2)
+                {
+                    nudIdleMinutes.Value   = captured;   // ValueChanged persiste e ricostruisce
+                    chkIdleSuspend.Checked = true;
+                };
+                idleMenuItem.DropDownItems.Add(item);
+            }
+
+            // Separatore
+            idleMenuItem.DropDownItems.Add(new System.Windows.Forms.ToolStripSeparator());
+
+            // Voce "Personalizzato: X min" — mostra l'ultimo valore custom
+            System.Windows.Forms.ToolStripMenuItem customItem =
+                new System.Windows.Forms.ToolStripMenuItem(L.Menu_IdleCustomMinutes(_lastIdleMinutes));
+            customItem.Checked = enabled && !isPreset;
+            customItem.Click  += delegate(object s, EventArgs e2)
+            {
+                nudIdleMinutes.Value   = _lastIdleMinutes;
+                chkIdleSuspend.Checked = true;
+            };
+            idleMenuItem.DropDownItems.Add(customItem);
+        }
+
         // ── formattazione tempi ───────────────────────────────────────────
         private static string FormatTime(TimeSpan t)
         {
@@ -449,6 +612,22 @@ namespace Insonnia
             RebuildDurationMenu();
         }
 
+        private void chkIdleSuspend_CheckedChanged(object sender, EventArgs e)
+        {
+            Settings.Default.IdleSuspendEnabled = chkIdleSuspend.Checked;
+            Settings.Default.Save();
+            UpdateUI();           // riallinea l'abilitazione di nudIdleMinutes
+            RebuildIdleMenu();
+        }
+
+        private void nudIdleMinutes_ValueChanged(object sender, EventArgs e)
+        {
+            _lastIdleMinutes = (int)nudIdleMinutes.Value;
+            Settings.Default.IdleThresholdMinutes = _lastIdleMinutes;
+            Settings.Default.Save();
+            RebuildIdleMenu();
+        }
+
         protected override bool ProcessCmdKey(ref Message msg, Keys keyData)
         {
             if (keyData == Keys.Escape)
@@ -459,13 +638,13 @@ namespace Insonnia
             return base.ProcessCmdKey(ref msg, keyData);
         }
 
-        private void Form1_Resize(object sender, EventArgs e)
+        private void MainForm_Resize(object sender, EventArgs e)
         {
             if (WindowState == FormWindowState.Minimized)
                 Hide();
         }
 
-        private void Form1_FormClosing(object sender, System.Windows.Forms.FormClosingEventArgs e)
+        private void MainForm_FormClosing(object sender, System.Windows.Forms.FormClosingEventArgs e)
         {
             if (!_forceClose && e.CloseReason == System.Windows.Forms.CloseReason.UserClosing)
             {

@@ -314,5 +314,71 @@ namespace Insonnia.Properties {
                 return ResourceManager.GetString("Msg_AlreadyRunning", resourceCulture);
             }
         }
+
+        internal static string UI_IdleSuspendLabel {
+            get {
+                return ResourceManager.GetString("UI_IdleSuspendLabel", resourceCulture);
+            }
+        }
+
+        internal static string UI_StatusIdleSuspended {
+            get {
+                return ResourceManager.GetString("UI_StatusIdleSuspended", resourceCulture);
+            }
+        }
+
+        internal static string Menu_IdleSuspend {
+            get {
+                return ResourceManager.GetString("Menu_IdleSuspend", resourceCulture);
+            }
+        }
+
+        internal static string Menu_IdleOff {
+            get {
+                return ResourceManager.GetString("Menu_IdleOff", resourceCulture);
+            }
+        }
+
+        internal static string Menu_IdleMinutes {
+            get {
+                return ResourceManager.GetString("Menu_IdleMinutes", resourceCulture);
+            }
+        }
+
+        internal static string Menu_IdleCustomMinutes {
+            get {
+                return ResourceManager.GetString("Menu_IdleCustomMinutes", resourceCulture);
+            }
+        }
+
+        internal static string Tray_IdleSuspended {
+            get {
+                return ResourceManager.GetString("Tray_IdleSuspended", resourceCulture);
+            }
+        }
+
+        internal static string Balloon_IdleSuspendTitle {
+            get {
+                return ResourceManager.GetString("Balloon_IdleSuspendTitle", resourceCulture);
+            }
+        }
+
+        internal static string Balloon_IdleSuspendText {
+            get {
+                return ResourceManager.GetString("Balloon_IdleSuspendText", resourceCulture);
+            }
+        }
+
+        internal static string Balloon_IdleResumeTitle {
+            get {
+                return ResourceManager.GetString("Balloon_IdleResumeTitle", resourceCulture);
+            }
+        }
+
+        internal static string Balloon_IdleResumeText {
+            get {
+                return ResourceManager.GetString("Balloon_IdleResumeText", resourceCulture);
+            }
+        }
     }
 }

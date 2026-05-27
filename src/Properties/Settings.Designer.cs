@@ -45,5 +45,29 @@ namespace Insonnia.Properties {
                 this["SelectedDurationIndex"] = value;
             }
         }
+
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool IdleSuspendEnabled {
+            get {
+                return ((bool)(this["IdleSuspendEnabled"]));
+            }
+            set {
+                this["IdleSuspendEnabled"] = value;
+            }
+        }
+
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("20")]
+        public int IdleThresholdMinutes {
+            get {
+                return ((int)(this["IdleThresholdMinutes"]));
+            }
+            set {
+                this["IdleThresholdMinutes"] = value;
+            }
+        }
     }
 }

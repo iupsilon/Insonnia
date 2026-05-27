@@ -49,6 +49,8 @@ namespace Insonnia.Properties
         { return string.Format(Get(Strings.UI_StatusActive, StringsEn.UI_StatusActive), n, t); }
         public static string UI_StatusTimer(string n, string t)
         { return string.Format(Get(Strings.UI_StatusTimer, StringsEn.UI_StatusTimer), n, t); }
+        public static string UI_IdleSuspendLabel    { get { return Get(Strings.UI_IdleSuspendLabel,    StringsEn.UI_IdleSuspendLabel); } }
+        public static string UI_StatusIdleSuspended  { get { return Get(Strings.UI_StatusIdleSuspended, StringsEn.UI_StatusIdleSuspended); } }
         // Durate combo
         public static string Duration_Infinite { get { return Get(Strings.Duration_Infinite, StringsEn.Duration_Infinite); } }
         public static string Duration_30min    { get { return Get(Strings.Duration_30min,    StringsEn.Duration_30min); } }
@@ -65,6 +67,12 @@ namespace Insonnia.Properties
         public static string Menu_Quit             { get { return Get(Strings.Menu_Quit,             StringsEn.Menu_Quit); } }
         public static string Menu_CustomMinutes(int min)
         { return string.Format(Get(Strings.Menu_CustomMinutes, StringsEn.Menu_CustomMinutes), min); }
+        public static string Menu_IdleSuspend { get { return Get(Strings.Menu_IdleSuspend, StringsEn.Menu_IdleSuspend); } }
+        public static string Menu_IdleOff      { get { return Get(Strings.Menu_IdleOff,      StringsEn.Menu_IdleOff); } }
+        public static string Menu_IdleMinutes(int min)
+        { return string.Format(Get(Strings.Menu_IdleMinutes, StringsEn.Menu_IdleMinutes), min); }
+        public static string Menu_IdleCustomMinutes(int min)
+        { return string.Format(Get(Strings.Menu_IdleCustomMinutes, StringsEn.Menu_IdleCustomMinutes), min); }
         // Balloon
         public static string Balloon_StartedTitle    { get { return Get(Strings.Balloon_StartedTitle,    StringsEn.Balloon_StartedTitle); } }
         public static string Balloon_StoppedTitle    { get { return Get(Strings.Balloon_StoppedTitle,    StringsEn.Balloon_StoppedTitle); } }
@@ -75,6 +83,10 @@ namespace Insonnia.Properties
         public static string Balloon_95Title         { get { return Get(Strings.Balloon_95Title,         StringsEn.Balloon_95Title); } }
         public static string Balloon_UrgentTitle     { get { return Get(Strings.Balloon_UrgentTitle,     StringsEn.Balloon_UrgentTitle); } }
         public static string Balloon_StartIndefinite { get { return Get(Strings.Balloon_StartIndefinite, StringsEn.Balloon_StartIndefinite); } }
+        public static string Balloon_IdleSuspendTitle { get { return Get(Strings.Balloon_IdleSuspendTitle, StringsEn.Balloon_IdleSuspendTitle); } }
+        public static string Balloon_IdleSuspendText  { get { return Get(Strings.Balloon_IdleSuspendText,  StringsEn.Balloon_IdleSuspendText); } }
+        public static string Balloon_IdleResumeTitle  { get { return Get(Strings.Balloon_IdleResumeTitle,  StringsEn.Balloon_IdleResumeTitle); } }
+        public static string Balloon_IdleResumeText   { get { return Get(Strings.Balloon_IdleResumeText,   StringsEn.Balloon_IdleResumeText); } }
         public static string Balloon_StartedText(string d)
         { return string.Format(Get(Strings.Balloon_StartedText, StringsEn.Balloon_StartedText), d); }
         public static string Balloon_StartFor(string d)
@@ -93,6 +105,7 @@ namespace Insonnia.Properties
         { return string.Format(Get(Strings.Tray_ActiveElapsed, StringsEn.Tray_ActiveElapsed), t); }
         public static string Tray_ActiveRemaining(string t)
         { return string.Format(Get(Strings.Tray_ActiveRemaining, StringsEn.Tray_ActiveRemaining), t); }
+        public static string Tray_IdleSuspended { get { return Get(Strings.Tray_IdleSuspended, StringsEn.Tray_IdleSuspended); } }
         // Messaggi
         public static string Msg_AlreadyRunning { get { return Get(Strings.Msg_AlreadyRunning, StringsEn.Msg_AlreadyRunning); } }
     }
