@@ -2,23 +2,24 @@ namespace Insonnia.Properties
 {
     using System.Globalization;
     /// <summary>
-    /// Wrapper localizzato IT/EN sopra le classi autogenerate Strings (IT) e StringsEn (EN).
+    /// Wrapper localizzato sopra le classi autogenerate Strings (IT) e StringsEn (EN).
+    /// Default: inglese. L'italiano è usato solo per le culture it-*.
     /// </summary>
     internal static class L
     {
-        private static bool IsEnglish
+        private static bool IsItalian
         {
             get
             {
                 return string.Equals(
                     CultureInfo.CurrentUICulture.TwoLetterISOLanguageName,
-                    "en",
+                    "it",
                     System.StringComparison.OrdinalIgnoreCase);
             }
         }
         private static string Get(string it, string en)
         {
-            return IsEnglish ? en : it;
+            return IsItalian ? it : en;
         }
 
         /// <summary>Lookup per chiave — usato da InsonniaLevel.</summary>
@@ -26,8 +27,8 @@ namespace Insonnia.Properties
         {
             try
             {
-                string v = IsEnglish ? StringsEn.ResourceManager.GetString(key) : null;
-                if (v == null) v = Strings.ResourceManager.GetString(key);
+                string v = IsItalian ? Strings.ResourceManager.GetString(key) : null;
+                if (v == null) v = StringsEn.ResourceManager.GetString(key);
                 return v ?? key;
             }
             catch { return key; }

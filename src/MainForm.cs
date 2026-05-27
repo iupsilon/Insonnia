@@ -45,12 +45,12 @@ namespace Insonnia
             get
             {
                 return new string[] {
-                    Strings.Duration_Infinite,
-                    Strings.Duration_30min,
-                    Strings.Duration_1h,
-                    Strings.Duration_2h,
-                    Strings.Duration_4h,
-                    Strings.Duration_Custom
+                    L.Duration_Infinite,
+                    L.Duration_30min,
+                    L.Duration_1h,
+                    L.Duration_2h,
+                    L.Duration_4h,
+                    L.Duration_Custom
                 };
             }
         }
