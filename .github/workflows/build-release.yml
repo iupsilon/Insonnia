@@ -1,0 +1,60 @@
+name: Build & Release
+
+on:
+  push:
+    branches: [ master ]      # solo build di verifica
+    tags: [ 'v*' ]            # build + Release con artifact
+  workflow_dispatch:          # avvio manuale dalla tab Actions
+
+permissions:
+  contents: write             # necessario per creare la Release sui tag
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup MSBuild
+        uses: microsoft/setup-msbuild@v2
+
+      # Nessun pacchetto NuGet: le glyph sono risorse embedded, nessuna dipendenza out-of-band
+      - name: Build (Release)
+        run: msbuild src/Insonnia.csproj /p:Configuration=Release /p:Platform=AnyCPU /m
+
+      - name: Read version
+        id: ver
+        shell: pwsh
+        run: |
+          $v = (Get-Item src/bin/Release/Insonnia.exe).VersionInfo.ProductVersion
+          "version=$v" >> $env:GITHUB_OUTPUT
+
+      # Artifact di verifica su OGNI build (master / manuale / tag)
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: Insonnia-${{ steps.ver.outputs.version }}
+          path: |
+            src/bin/Release/Insonnia.exe
+            src/bin/Release/Insonnia.exe.config
+          if-no-files-found: error
+
+      # ── Solo sui tag (es. v2.1): pacchetto zip + Release GitHub ──────────
+      - name: Package release zip
+        id: pkg
+        if: startsWith(github.ref, 'refs/tags/')
+        shell: pwsh
+        run: |
+          $out = "Insonnia-${{ github.ref_name }}.zip"
+          Compress-Archive -Path 'src/bin/Release/Insonnia.exe',
+                                 'src/bin/Release/Insonnia.exe.config' `
+                           -DestinationPath $out -Force
+          "zip=$out" >> $env:GITHUB_OUTPUT
+
+      - name: Create GitHub Release
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: ${{ steps.pkg.outputs.zip }}
+          generate_release_notes: true
