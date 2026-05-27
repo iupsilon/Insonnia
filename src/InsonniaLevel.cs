@@ -1,19 +1,30 @@
 using Insonnia.Properties;
 using System;
 using System.Drawing;
+using System.IO;
+using System.Reflection;
 
 namespace Insonnia
 {
     internal class InsonniaLevel
     {
         // I nomi dei livelli sono proprietà lazy per supportare il cambio lingua a runtime
-        private static readonly InsonniaLevel Off      = new InsonniaLevel(TimeSpan.Zero,           "Level_Off",       Resources.coffee);
-        private static readonly InsonniaLevel Quiet    = new InsonniaLevel(TimeSpan.FromMinutes(30), "Level_Quiet",     Resources.quiet);
-        private static readonly InsonniaLevel Happy    = new InsonniaLevel(TimeSpan.FromHours(2),   "Level_Happy",     Resources.happy);
-        private static readonly InsonniaLevel Weary    = new InsonniaLevel(TimeSpan.FromHours(4),   "Level_Weary",     Resources.weary);
-        private static readonly InsonniaLevel Exhausted= new InsonniaLevel(TimeSpan.MaxValue,       "Level_Exhausted", Resources.exhausted);
+        private static readonly InsonniaLevel Off      = new InsonniaLevel(TimeSpan.Zero,           "Level_Off",       LoadGlyph("coffee.png"));
+        private static readonly InsonniaLevel Quiet    = new InsonniaLevel(TimeSpan.FromMinutes(30), "Level_Quiet",     LoadGlyph("quiet.png"));
+        private static readonly InsonniaLevel Happy    = new InsonniaLevel(TimeSpan.FromHours(2),   "Level_Happy",     LoadGlyph("happy.png"));
+        private static readonly InsonniaLevel Weary    = new InsonniaLevel(TimeSpan.FromHours(4),   "Level_Weary",     LoadGlyph("weary.png"));
+        private static readonly InsonniaLevel Exhausted= new InsonniaLevel(TimeSpan.MaxValue,       "Level_Exhausted", LoadGlyph("exhausted.png"));
 
         public static readonly InsonniaLevel[] Levels = new InsonniaLevel[] { Off, Quiet, Happy, Weary, Exhausted };
+
+        /// <summary>Carica un PNG embedded (LogicalName) e ne restituisce una copia svincolata dallo stream.</summary>
+        private static Bitmap LoadGlyph(string logicalName)
+        {
+            Assembly asm = typeof(InsonniaLevel).Assembly;
+            using (Stream s = asm.GetManifestResourceStream(logicalName))
+            using (Bitmap raw = new Bitmap(s))
+                return new Bitmap(raw); // copia 32bpp ARGB: lo stream può essere chiuso
+        }
 
         private readonly TimeSpan _timeKeptAwake;
         private readonly string   _nameKey;   // chiave risorsa

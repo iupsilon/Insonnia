@@ -14,8 +14,6 @@
     <Deterministic>true</Deterministic>
     <TargetFrameworkProfile />
     <RuntimeIdentifiers>win</RuntimeIdentifiers>
-    <GenerateResourceUsePreserializedResources>true</GenerateResourceUsePreserializedResources>
-    <ResolveNuGetPackages>false</ResolveNuGetPackages>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -40,9 +38,6 @@
     <ApplicationIcon>coffee.ico</ApplicationIcon>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="System.Resources.Extensions">
-      <HintPath>packages\System.Resources.Extensions.8.0.0\lib\net462\System.Resources.Extensions.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
@@ -75,11 +70,6 @@
     <EmbeddedResource Include="MainForm.resx">
       <DependentUpon>MainForm.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Properties\Resources.resx">
-      <Generator>ResXFileCodeGenerator</Generator>
-      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
-      <SubType>Designer</SubType>
-    </EmbeddedResource>
     <EmbeddedResource Include="Properties\Strings.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Strings.Designer.cs</LastGenOutput>
@@ -87,11 +77,6 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\StringsEn.resx" />
     <Compile Include="Properties\StringsEn.Designer.cs" />
-    <Compile Include="Properties\Resources.Designer.cs">
-      <AutoGen>True</AutoGen>
-      <DependentUpon>Resources.resx</DependentUpon>
-      <DesignTime>True</DesignTime>
-    </Compile>
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
@@ -107,6 +92,24 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="coffee.ico" />
+  </ItemGroup>
+  <!-- Glyph dei livelli: risorse embedded (caricate via GetManifestResourceStream) -->
+  <ItemGroup>
+    <EmbeddedResource Include="assets\coffee.png">
+      <LogicalName>coffee.png</LogicalName>
+    </EmbeddedResource>
+    <EmbeddedResource Include="assets\quiet.png">
+      <LogicalName>quiet.png</LogicalName>
+    </EmbeddedResource>
+    <EmbeddedResource Include="assets\happy.png">
+      <LogicalName>happy.png</LogicalName>
+    </EmbeddedResource>
+    <EmbeddedResource Include="assets\weary.png">
+      <LogicalName>weary.png</LogicalName>
+    </EmbeddedResource>
+    <EmbeddedResource Include="assets\exhausted.png">
+      <LogicalName>exhausted.png</LogicalName>
+    </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
