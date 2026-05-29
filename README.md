@@ -11,9 +11,9 @@
 - 🖥️ **Prevents sleep and display shutoff** via Windows API
 - ⏱️ **Configurable duration** — always-on or with an auto-stop timer
 - 💤 **Idle auto-suspend** *(optional)* — if you walk away, releases the lock after N idle minutes so the PC can sleep, then resumes automatically on the next keyboard/mouse activity
-- 🔔 **Progressive balloon notifications** as the timer approaches expiry
+- 🔕 **Minimal notifications** — a single balloon when the timer expires; everything else stays silent (status lives in the window and tray tooltip)
 - 📊 **Live progress bar** with color feedback (green → orange → red)
-- 🟢 **Dynamic tray icon** — a progress ring around the icon depletes and changes color as the timer runs (pulses when about to expire)
+- ☕ **Mode-aware tray icon** — a coffee cup with a small overlay that shows the current mode at a glance: a clock for a running timer, a "zzz" when idle-suspended, no overlay when always-on, grey when stopped
 - 🕐 **Elapsed / remaining time** shown in real time in the form and tray tooltip
 - 🌍 **Bilingual UI** — Italian and English, auto-detected from Windows language
 - 💾 **Persistent settings** — last duration and custom minutes are remembered across restarts
@@ -47,7 +47,7 @@ No installer required. Download the latest release, extract and run `Insonnia.ex
 | **Suspend if idle** check + minutes | When enabled, releases keep-awake after the given idle minutes (1–240) and resumes on activity |
 | **▶ Start** | Activates keep-awake with the selected duration |
 | **■ Stop** | Deactivates keep-awake immediately |
-| Status label | Shows current level, elapsed time (∞ mode) or remaining time (timer mode) |
+| Status label | Shows elapsed time (∞ mode) or remaining time (timer mode) |
 | Progress bar | Visible in timer mode — fills left-to-right, changes color near expiry |
 
 ### Duration Options
@@ -91,37 +91,28 @@ Insonnia.exe -s
 
 ---
 
-## 🔔 Timer Notifications
+## 🔕 Notifications
 
-When a finite duration is set, Insonnia shows non-intrusive balloon notifications at key moments:
+Insonnia stays quiet on purpose. Starting, stopping, suspending and resuming are all silent — the current state is always visible in the main window and the tray tooltip. The **only** balloon shown is when a finite timer expires:
 
-| Threshold | Notification |
-|---|---|
-| 75% elapsed | "⏳ Remaining: X min" |
-| 90% elapsed | "⚠️ Less than X min left" |
-| 95% elapsed | "🔔 Expires in X min" |
-| Last 60 seconds | Every 15 s: "⏰ Stops in X seconds" + tray icon blinks |
-| Expiry | "⏰ Time's up — good night!" → auto-stop |
+> **"Time's up — good night!"** → the session auto-stops.
+
+In the final minute the window status and progress bar turn crimson, but no popup interrupts you.
 
 ---
 
-## 🎨 Activity Levels
+## ☕ Tray Icon
 
-The tray icon changes based on how long the PC has been kept awake:
+The tray icon is a coffee cup drawn as a vector (crisp at 16 px). A small overlay communicates the current mode:
 
-| Icon | Level | After |
-|---|---|---|
-| ☕ Coffee | Idle / Just started | 0 min |
-| 😌 Quiet | Awake | 30 min |
-| 😊 Happy | Active | 2 h |
-| 😩 Weary | Tired | 4 h |
-| 😵 Exhausted | Exhausted | — |
+| State | Appearance |
+|---|---|
+| **Always-on** (running, no timer) | Warm amber cup with steam — **no overlay** |
+| **Timer** (running, finite duration) | Amber cup with a small **clock** badge (bottom-right) |
+| **Idle-suspended** | Muted cup with a **"zzz"** overlay (top-right) — keep-awake released, the PC may sleep |
+| **Stopped** | Grey cup — **no overlay** |
 
-The tray icon is **rendered dynamically** around the mood glyph to reflect the current state:
-
-- **Timer mode** — a **progress ring** depletes clockwise as time runs out, shifting **green → amber → red**, and pulses red in the final minute.
-- **Always-on mode** — a full, steady **blue ring** (active, no countdown).
-- **Idle-suspended** — the glyph is **dimmed** with a small **moon badge** (keep-awake released, the PC may sleep).
+The same coffee-cup artwork is used for the window title-bar icon and the in-app header, for a consistent look. Icons are precomputed once (no per-second redraw).
 
 ---
 
@@ -156,8 +147,8 @@ This is the same mechanism used by media players and presentation software to pr
 
 When the optional **Suspend if idle** threshold is set, Insonnia polls the system idle time (Windows `GetLastInputInfo`) once per second while active:
 
-- After the configured minutes with **no keyboard or mouse activity**, it **releases** the keep-awake lock — the PC can then sleep according to your normal Windows power settings. The session stays *armed* (the tray icon goes back to its calm state and a "Suspended" balloon appears).
-- On the **first input** after that, the lock is **re-acquired** automatically and a "Resumed" balloon appears.
+- After the configured minutes with **no keyboard or mouse activity**, it **releases** the keep-awake lock — the PC can then sleep according to your normal Windows power settings. The session stays *armed* (the tray icon switches to the "zzz" overlay; no popup is shown).
+- On the **first input** after that, the lock is **re-acquired** automatically and the tray icon returns to its active state.
 
 The duration countdown keeps running on wall-clock time while suspended, so a finite timer can still expire and stop the session even if you never come back.
 
@@ -183,15 +174,15 @@ Settings are stored in `%APPDATA%\Insonnia\` via the standard .NET `ApplicationS
 src/
 ├── MainForm.cs            # Main form logic
 ├── MainForm.Designer.cs   # UI layout
-├── InsonniaLevel.cs       # Activity level definitions + timer icons
-├── Win32Interop.cs        # SetThreadExecutionState P/Invoke
+├── TrayIconRenderer.cs    # Vector coffee-cup tray icons + mode overlays
+├── Win32Interop.cs        # SetThreadExecutionState + idle-time P/Invoke
 ├── Extensions.cs          # Bitmap → Icon helper
 ├── Program.cs             # Entry point + single-instance Mutex
 └── Properties/
     ├── Strings.resx        # Italian strings (default)
     ├── StringsEn.resx      # English strings
     ├── StringsHelper.cs    # Localization wrapper (class L)
-    └── Settings.settings   # User preferences (duration, custom minutes)
+    └── Settings.settings   # User preferences (duration, custom minutes, idle suspend)
 ```
 
 ---
