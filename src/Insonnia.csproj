@@ -58,7 +58,6 @@
     <Compile Include="MainForm.Designer.cs">
       <DependentUpon>MainForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="InsonniaLevel.cs" />
     <Compile Include="TrayIconRenderer.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -92,24 +91,6 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="coffee.ico" />
-  </ItemGroup>
-  <!-- Glyph dei livelli: risorse embedded (caricate via GetManifestResourceStream) -->
-  <ItemGroup>
-    <EmbeddedResource Include="assets\coffee.png">
-      <LogicalName>coffee.png</LogicalName>
-    </EmbeddedResource>
-    <EmbeddedResource Include="assets\quiet.png">
-      <LogicalName>quiet.png</LogicalName>
-    </EmbeddedResource>
-    <EmbeddedResource Include="assets\happy.png">
-      <LogicalName>happy.png</LogicalName>
-    </EmbeddedResource>
-    <EmbeddedResource Include="assets\weary.png">
-      <LogicalName>weary.png</LogicalName>
-    </EmbeddedResource>
-    <EmbeddedResource Include="assets\exhausted.png">
-      <LogicalName>exhausted.png</LogicalName>
-    </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

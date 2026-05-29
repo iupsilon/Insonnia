@@ -61,16 +61,16 @@
   <data name="Level_Exhausted" xml:space="preserve"><value>Sfinito</value></data>
 
   <!-- UI principale -->
-  <data name="UI_Title"          xml:space="preserve"><value>&#x2615; Insonnia</value></data>
+  <data name="UI_Title"          xml:space="preserve"><value>Insonnia</value></data>
   <data name="UI_LabelDuration"  xml:space="preserve"><value>Durata:</value></data>
   <data name="UI_LabelMinutes"   xml:space="preserve"><value>min</value></data>
   <data name="UI_BtnStart"       xml:space="preserve"><value>&#x25B6;  Avvia</value></data>
   <data name="UI_BtnStop"        xml:space="preserve"><value>&#x25A0;  Stop</value></data>
   <data name="UI_StatusPaused"   xml:space="preserve"><value>In pausa</value></data>
-  <data name="UI_StatusActive"   xml:space="preserve"><value>&#x2615; {0}  &#x2014;  Attivo da: {1}</value></data>
-  <data name="UI_StatusTimer"    xml:space="preserve"><value>&#x23F1; {0}  &#x2014;  Rimanente: {1}</value></data>
+  <data name="UI_StatusActive"   xml:space="preserve"><value>Attivo da: {0}</value></data>
+  <data name="UI_StatusTimer"    xml:space="preserve"><value>Rimanente: {0}</value></data>
   <data name="UI_IdleSuspendLabel" xml:space="preserve"><value>Sospendi se inattivo:</value></data>
-  <data name="UI_StatusIdleSuspended" xml:space="preserve"><value>&#x1F4A4; Sospeso per inattività</value></data>
+  <data name="UI_StatusIdleSuspended" xml:space="preserve"><value>Sospeso per inattività</value></data>
 
   <!-- Durate combo -->
   <data name="Duration_Infinite"    xml:space="preserve"><value>&#x221E;  Sempre attivo</value></data>
@@ -100,19 +100,19 @@
   <data name="Balloon_StartIndefinite" xml:space="preserve"><value>a tempo indeterminato</value></data>
   <data name="Balloon_StoppedTitle"   xml:space="preserve"><value>Fermato</value></data>
   <data name="Balloon_StoppedText"    xml:space="preserve"><value>Insonnia disattivato</value></data>
-  <data name="Balloon_Expired"        xml:space="preserve"><value>&#x23F0; Tempo scaduto &#x2014; buona notte!</value></data>
+  <data name="Balloon_Expired"        xml:space="preserve"><value>Tempo scaduto &#x2014; buona notte!</value></data>
   <data name="Balloon_75Title"        xml:space="preserve"><value>Ancora un po'</value></data>
-  <data name="Balloon_75Text"         xml:space="preserve"><value>&#x23F3; Rimanenti: {0}</value></data>
+  <data name="Balloon_75Text"         xml:space="preserve"><value>Rimanenti: {0}</value></data>
   <data name="Balloon_90Title"        xml:space="preserve"><value>In avvicinamento</value></data>
-  <data name="Balloon_90Text"         xml:space="preserve"><value>&#x26A0; Meno di {0} rimasti</value></data>
+  <data name="Balloon_90Text"         xml:space="preserve"><value>Meno di {0} rimasti</value></data>
   <data name="Balloon_95Title"        xml:space="preserve"><value>Quasi scaduto</value></data>
-  <data name="Balloon_95Text"         xml:space="preserve"><value>&#x1F514; Scadenza tra {0}</value></data>
+  <data name="Balloon_95Text"         xml:space="preserve"><value>Scadenza tra {0}</value></data>
   <data name="Balloon_UrgentTitle"    xml:space="preserve"><value>Scadenza imminente!</value></data>
-  <data name="Balloon_UrgentText"     xml:space="preserve"><value>&#x23F0; Insonnia si ferma tra {0} secondi</value></data>
+  <data name="Balloon_UrgentText"     xml:space="preserve"><value>Insonnia si ferma tra {0} secondi</value></data>
   <data name="Balloon_IdleSuspendTitle" xml:space="preserve"><value>Sospeso</value></data>
-  <data name="Balloon_IdleSuspendText"  xml:space="preserve"><value>&#x1F4A4; Nessuna attività: il PC può dormire</value></data>
+  <data name="Balloon_IdleSuspendText"  xml:space="preserve"><value>Nessuna attività: il PC può dormire</value></data>
   <data name="Balloon_IdleResumeTitle"  xml:space="preserve"><value>Ripreso</value></data>
-  <data name="Balloon_IdleResumeText"   xml:space="preserve"><value>&#x2615; Attività rilevata: Insonnia riattivato</value></data>
+  <data name="Balloon_IdleResumeText"   xml:space="preserve"><value>Attività rilevata: Insonnia riattivato</value></data>
 
   <!-- Tooltip tray -->
   <data name="Tray_Paused"    xml:space="preserve"><value>Insonnia - In pausa</value></data>

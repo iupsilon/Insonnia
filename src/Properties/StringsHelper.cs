@@ -22,23 +22,6 @@ namespace Insonnia.Properties
             return IsItalian ? it : en;
         }
 
-        /// <summary>Lookup per chiave — usato da InsonniaLevel.</summary>
-        public static string Get(string key)
-        {
-            try
-            {
-                string v = IsItalian ? Strings.ResourceManager.GetString(key) : null;
-                if (v == null) v = StringsEn.ResourceManager.GetString(key);
-                return v ?? key;
-            }
-            catch { return key; }
-        }
-        // Livelli
-        public static string Level_Off       { get { return Get(Strings.Level_Off,       StringsEn.Level_Off); } }
-        public static string Level_Quiet     { get { return Get(Strings.Level_Quiet,     StringsEn.Level_Quiet); } }
-        public static string Level_Happy     { get { return Get(Strings.Level_Happy,     StringsEn.Level_Happy); } }
-        public static string Level_Weary     { get { return Get(Strings.Level_Weary,     StringsEn.Level_Weary); } }
-        public static string Level_Exhausted { get { return Get(Strings.Level_Exhausted, StringsEn.Level_Exhausted); } }
         // UI
         public static string UI_Title         { get { return Get(Strings.UI_Title,         StringsEn.UI_Title); } }
         public static string UI_LabelDuration { get { return Get(Strings.UI_LabelDuration, StringsEn.UI_LabelDuration); } }
@@ -46,10 +29,10 @@ namespace Insonnia.Properties
         public static string UI_BtnStart      { get { return Get(Strings.UI_BtnStart,      StringsEn.UI_BtnStart); } }
         public static string UI_BtnStop       { get { return Get(Strings.UI_BtnStop,       StringsEn.UI_BtnStop); } }
         public static string UI_StatusPaused  { get { return Get(Strings.UI_StatusPaused,  StringsEn.UI_StatusPaused); } }
-        public static string UI_StatusActive(string n, string t)
-        { return string.Format(Get(Strings.UI_StatusActive, StringsEn.UI_StatusActive), n, t); }
-        public static string UI_StatusTimer(string n, string t)
-        { return string.Format(Get(Strings.UI_StatusTimer, StringsEn.UI_StatusTimer), n, t); }
+        public static string UI_StatusActive(string t)
+        { return string.Format(Get(Strings.UI_StatusActive, StringsEn.UI_StatusActive), t); }
+        public static string UI_StatusTimer(string t)
+        { return string.Format(Get(Strings.UI_StatusTimer, StringsEn.UI_StatusTimer), t); }
         public static string UI_IdleSuspendLabel    { get { return Get(Strings.UI_IdleSuspendLabel,    StringsEn.UI_IdleSuspendLabel); } }
         public static string UI_StatusIdleSuspended  { get { return Get(Strings.UI_StatusIdleSuspended, StringsEn.UI_StatusIdleSuspended); } }
         // Durate combo

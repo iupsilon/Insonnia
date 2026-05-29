@@ -1,6 +1,5 @@
 ﻿using Microsoft.Win32;
 using System;
-using System.Collections.Generic;
 using System.Drawing;
 using System.Reflection;
 using System.Windows.Forms;
@@ -14,11 +13,7 @@ namespace Insonnia
         private const string RunRegKey  = @"Software\Microsoft\Windows\CurrentVersion\Run";
         private const string AppName    = "Insonnia";
 
-        private const double Threshold75 = 0.75;
-        private const double Threshold90 = 0.90;
-        private const double Threshold95 = 0.95;
-        private const int    UrgentSecs  = 60;
-        private const int    UrgentEvery = 15;
+        private const int    UrgentSecs  = 60;   // soglia "ultimo minuto" per il colore cremisi in finestra
 
         // ── stato ────────────────────────────────────────────────────────
         private bool      _keepAwake       = false;   // sessione armata (Avvia premuto)
@@ -35,8 +30,6 @@ namespace Insonnia
         private System.Windows.Forms.Timer _uiTimer;
         private int _tickCount = 0;
 
-        private readonly HashSet<string> _notifiedKeys = new HashSet<string>();
-        private int  _lastUrgentNotifySec = int.MinValue;
         private bool _forceClose  = false;
 
         // ── durata combo ─────────────────────────────────────────────────
@@ -109,7 +102,8 @@ namespace Insonnia
             UpdateStartWithWindowsMenu();
             RebuildDurationMenu();
             RebuildIdleMenu();
-            SetTrayIcon(InsonniaLevel.GetCurrent(TimeSpan.Zero).Icon);
+            SetTrayIcon(TrayIconRenderer.Stopped);
+            picTitle.Image = TrayIconRenderer.Logo;
 
             // Versione assembly
             Version ver = Assembly.GetExecutingAssembly().GetName().Version;
@@ -146,38 +140,26 @@ namespace Insonnia
                 Win32Interop.SetThreadExecutionState(
                     EXECUTION_STATE.ES_CONTINUOUS | EXECUTION_STATE.ES_DISPLAY_REQUIRED);
 
-            InsonniaLevel level = InsonniaLevel.GetCurrent(elapsed);
             bool timerMode = _maxDuration.HasValue;
-            if (_idleSuspended)
-            {
-                SetTrayIconDynamic(TrayIconRenderer.IdleSuspended(level.Source));
-            }
-            else if (timerMode)
-            {
-                double ratio  = elapsed.TotalSeconds / _maxDuration.Value.TotalSeconds;
-                bool   urgent = (_maxDuration.Value - elapsed).TotalSeconds <= UrgentSecs;
-                SetTrayIconDynamic(TrayIconRenderer.Timer(level.Source, ratio, urgent, _tickCount % 2 == 0));
-            }
-            else
-            {
-                SetTrayIconDynamic(TrayIconRenderer.Active(level.Source));
-            }
+
+            // Overlay dell'icona in base alla modalità:
+            //  sospeso → "zzz"; timer attivo → orologino; illimitato → nessun overlay.
+            Icon trayIcon = _idleSuspended ? TrayIconRenderer.IdleSuspended
+                          : timerMode      ? TrayIconRenderer.Timer
+                                           : TrayIconRenderer.Active;
+            SetTrayIcon(trayIcon);
 
             UpdateStatusDisplay(elapsed);
             UpdateTrayTooltip(elapsed);
 
-            if (timerMode)
+            // La scadenza ferma la sessione in entrambi gli stati (anche da sospeso:
+            // al risveglio del PC il tempo trascorso può aver superato la durata).
+            // È l'unico evento che mostra ancora un balloon.
+            if (timerMode && elapsed >= _maxDuration.Value)
             {
-                // La scadenza ferma la sessione in entrambi gli stati (anche da sospeso:
-                // al risveglio del PC il tempo trascorso può aver superato la durata)
-                if (elapsed >= _maxDuration.Value)
-                {
-                    StopInsonnia(L.Balloon_Expired);
-                    return;
-                }
-                // Notifiche progressive e lampeggio solo quando il lock è attivo
-                if (!_idleSuspended)
-                    HandleTimerNotifications(elapsed);
+                ShowBalloon(L.Balloon_StoppedTitle, L.Balloon_Expired, ToolTipIcon.Info, 2500);
+                StopInsonnia();
+                return;
             }
         }
 
@@ -203,10 +185,8 @@ namespace Insonnia
                 : (TimeSpan?)null;
             _idleSuspended = false;
 
-            _insonniaStarted     = DateTime.Now;
-            _tickCount           = 0;
-            _notifiedKeys.Clear();
-            _lastUrgentNotifySec = int.MinValue;
+            _insonniaStarted = DateTime.Now;
+            _tickCount       = 0;
 
             Win32Interop.SetThreadExecutionState(
                 EXECUTION_STATE.ES_CONTINUOUS | EXECUTION_STATE.ES_DISPLAY_REQUIRED);
@@ -214,18 +194,12 @@ namespace Insonnia
             _keepAwake = true;
             _uiTimer.Start();
 
-            string durationText = _maxDuration.HasValue
-                ? L.Balloon_StartFor(FormatDuration(_maxDuration.Value))
-                : L.Balloon_StartIndefinite;
-            ShowBalloon(L.Balloon_StartedTitle,
-                L.Balloon_StartedText(durationText),
-                ToolTipIcon.Info, 2000);
-
             UpdateUI();
             UpdateStatusDisplay(TimeSpan.Zero);
         }
 
-        private void StopInsonnia(string balloonMessage)
+        /// <summary>Ferma la sessione (silenzioso). L'eventuale balloon di scadenza è mostrato dal chiamante.</summary>
+        private void StopInsonnia()
         {
             _uiTimer.Stop();
             _insonniaStarted = null;
@@ -238,18 +212,11 @@ namespace Insonnia
 
             _keepAwake = false;
 
-            SetTrayIcon(InsonniaLevel.GetCurrent(TimeSpan.Zero).Icon);
-
-            ShowBalloon(L.Balloon_StoppedTitle, balloonMessage, ToolTipIcon.Info, 2000);
+            SetTrayIcon(TrayIconRenderer.Stopped);
             notifyIcon.Text = L.Tray_Paused;
 
             UpdateUI();
             UpdateStatusDisplay(TimeSpan.Zero);
-        }
-
-        private void StopInsonnia()
-        {
-            StopInsonnia(L.Balloon_StoppedText);
         }
 
         // ── sospensione per inattività ─────────────────────────────────────
@@ -258,9 +225,7 @@ namespace Insonnia
         {
             _idleSuspended = true;
             Win32Interop.SetThreadExecutionState(EXECUTION_STATE.ES_CONTINUOUS);
-            InsonniaLevel level = InsonniaLevel.GetCurrent(DateTime.Now - _insonniaStarted.Value);
-            SetTrayIconDynamic(TrayIconRenderer.IdleSuspended(level.Source));
-            ShowBalloon(L.Balloon_IdleSuspendTitle, L.Balloon_IdleSuspendText, ToolTipIcon.Info, 2500);
+            SetTrayIcon(TrayIconRenderer.IdleSuspended);
         }
 
         /// <summary>Attività rilevata: riacquisisce il lock e riprende il keep-awake.</summary>
@@ -269,62 +234,6 @@ namespace Insonnia
             _idleSuspended = false;
             Win32Interop.SetThreadExecutionState(
                 EXECUTION_STATE.ES_CONTINUOUS | EXECUTION_STATE.ES_DISPLAY_REQUIRED);
-            ShowBalloon(L.Balloon_IdleResumeTitle, L.Balloon_IdleResumeText, ToolTipIcon.Info, 2000);
-        }
-
-        // ── notifiche timer progressive ───────────────────────────────────
-        private void HandleTimerNotifications(TimeSpan elapsed)
-        {
-            if (!_maxDuration.HasValue) return;
-
-            double totalSecs     = _maxDuration.Value.TotalSeconds;
-            double elapsedSecs   = elapsed.TotalSeconds;
-            double ratio         = elapsedSecs / totalSecs;
-            double remainingSecs = totalSecs - elapsedSecs;
-            // La scadenza è gestita centralmente in UiTimer_Tick.
-
-            TryNotify("75pct",
-                ratio >= Threshold75 && ratio < Threshold90,
-                L.Balloon_75Title,
-                L.Balloon_75Text(FormatDuration(TimeSpan.FromSeconds(remainingSecs))),
-                ToolTipIcon.Info, 2500);
-
-            TryNotify("90pct",
-                ratio >= Threshold90 && ratio < Threshold95,
-                L.Balloon_90Title,
-                L.Balloon_90Text(FormatDuration(TimeSpan.FromSeconds(remainingSecs))),
-                ToolTipIcon.Warning, 2500);
-
-            TryNotify("95pct",
-                ratio >= Threshold95 && remainingSecs > UrgentSecs,
-                L.Balloon_95Title,
-                L.Balloon_95Text(FormatDuration(TimeSpan.FromSeconds(remainingSecs))),
-                ToolTipIcon.Warning, 2500);
-
-            if (remainingSecs <= UrgentSecs && remainingSecs > 0)
-            {
-                // Il lampeggio è ora reso dall'anello pulsante (vedi UiTimer_Tick + TrayIconRenderer)
-                int secInt = (int)remainingSecs;
-                bool firstUrgent    = _lastUrgentNotifySec == int.MinValue;
-                bool intervalPassed = (_lastUrgentNotifySec - secInt) >= UrgentEvery;
-                if (secInt != _lastUrgentNotifySec && (firstUrgent || intervalPassed))
-                {
-                    _lastUrgentNotifySec = secInt;
-                    ShowBalloon(L.Balloon_UrgentTitle,
-                        L.Balloon_UrgentText(secInt),
-                        ToolTipIcon.Warning, 2000);
-                }
-            }
-        }
-
-        private void TryNotify(string key, bool condition, string title, string text,
-            ToolTipIcon icon, int duration)
-        {
-            if (condition && !_notifiedKeys.Contains(key))
-            {
-                _notifiedKeys.Add(key);
-                ShowBalloon(title, text, icon, duration);
-            }
         }
 
         // ── helpers UI ────────────────────────────────────────────────────
@@ -365,8 +274,6 @@ namespace Insonnia
                 return;
             }
 
-            InsonniaLevel level = InsonniaLevel.GetCurrent(elapsed);
-
             if (_maxDuration.HasValue)
             {
                 TimeSpan remaining = _maxDuration.Value - elapsed;
@@ -375,7 +282,7 @@ namespace Insonnia
                 double ratio = elapsed.TotalSeconds / _maxDuration.Value.TotalSeconds;
                 bool urgent  = remaining.TotalSeconds <= UrgentSecs;
 
-                lblStatus.Text = L.UI_StatusTimer(level.Name, FormatTime(remaining));
+                lblStatus.Text = L.UI_StatusTimer(FormatTime(remaining));
                 lblStatus.ForeColor = urgent ? Color.Crimson : Color.FromArgb(0, 120, 60);
 
                 progressTimer.Visible = true;
@@ -390,7 +297,7 @@ namespace Insonnia
             }
             else
             {
-                lblStatus.Text        = L.UI_StatusActive(level.Name, FormatTime(elapsed));
+                lblStatus.Text        = L.UI_StatusActive(FormatTime(elapsed));
                 lblStatus.ForeColor   = Color.FromArgb(0, 102, 204);
                 progressTimer.Visible = false;
             }
@@ -416,32 +323,10 @@ namespace Insonnia
             notifyIcon.Text = tip.Length > 63 ? tip.Substring(0, 63) : tip;
         }
 
-        // Icona dinamica corrente (anello/lunetta): va liberata, a differenza di quelle statiche.
-        private Icon _dynamicTrayIcon;
-
-        /// <summary>Imposta un'icona statica condivisa (non va liberata) e scarta l'eventuale dinamica.</summary>
+        /// <summary>Imposta un'icona statica condivisa, precalcolata per livello/stato (non va liberata).</summary>
         private void SetTrayIcon(Icon icon)
         {
             this.Icon = notifyIcon.Icon = icon;
-            DisposeDynamicIcon();
-        }
-
-        /// <summary>Imposta un'icona generata a runtime, liberando la precedente per non perdere handle GDI.</summary>
-        private void SetTrayIconDynamic(Icon dyn)
-        {
-            Icon previous = _dynamicTrayIcon;
-            this.Icon = notifyIcon.Icon = dyn;
-            _dynamicTrayIcon = dyn;
-            if (previous != null) previous.Dispose();
-        }
-
-        private void DisposeDynamicIcon()
-        {
-            if (_dynamicTrayIcon != null)
-            {
-                _dynamicTrayIcon.Dispose();
-                _dynamicTrayIcon = null;
-            }
         }
 
         private void ShowBalloon(string title, string text, ToolTipIcon icon, int ms)

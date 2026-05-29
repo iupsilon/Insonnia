@@ -61,16 +61,16 @@
   <data name="Level_Exhausted" xml:space="preserve"><value>Exhausted</value></data>
 
   <!-- Main UI -->
-  <data name="UI_Title"          xml:space="preserve"><value>&#x2615; Insonnia</value></data>
+  <data name="UI_Title"          xml:space="preserve"><value>Insonnia</value></data>
   <data name="UI_LabelDuration"  xml:space="preserve"><value>Duration:</value></data>
   <data name="UI_LabelMinutes"   xml:space="preserve"><value>min</value></data>
   <data name="UI_BtnStart"       xml:space="preserve"><value>&#x25B6;  Start</value></data>
   <data name="UI_BtnStop"        xml:space="preserve"><value>&#x25A0;  Stop</value></data>
   <data name="UI_StatusPaused"   xml:space="preserve"><value>Paused</value></data>
-  <data name="UI_StatusActive"   xml:space="preserve"><value>&#x2615; {0}  &#x2014;  Active for: {1}</value></data>
-  <data name="UI_StatusTimer"    xml:space="preserve"><value>&#x23F1; {0}  &#x2014;  Remaining: {1}</value></data>
+  <data name="UI_StatusActive"   xml:space="preserve"><value>Active for: {0}</value></data>
+  <data name="UI_StatusTimer"    xml:space="preserve"><value>Remaining: {0}</value></data>
   <data name="UI_IdleSuspendLabel" xml:space="preserve"><value>Suspend if idle:</value></data>
-  <data name="UI_StatusIdleSuspended" xml:space="preserve"><value>&#x1F4A4; Suspended (idle)</value></data>
+  <data name="UI_StatusIdleSuspended" xml:space="preserve"><value>Suspended (idle)</value></data>
 
   <!-- Duration combo -->
   <data name="Duration_Infinite"    xml:space="preserve"><value>&#x221E;  Always on</value></data>
@@ -100,19 +100,19 @@
   <data name="Balloon_StartIndefinite" xml:space="preserve"><value>indefinitely</value></data>
   <data name="Balloon_StoppedTitle"    xml:space="preserve"><value>Stopped</value></data>
   <data name="Balloon_StoppedText"     xml:space="preserve"><value>Insonnia deactivated</value></data>
-  <data name="Balloon_Expired"         xml:space="preserve"><value>&#x23F0; Time's up &#x2014; good night!</value></data>
+  <data name="Balloon_Expired"         xml:space="preserve"><value>Time's up &#x2014; good night!</value></data>
   <data name="Balloon_75Title"         xml:space="preserve"><value>Almost there</value></data>
-  <data name="Balloon_75Text"          xml:space="preserve"><value>&#x23F3; Remaining: {0}</value></data>
+  <data name="Balloon_75Text"          xml:space="preserve"><value>Remaining: {0}</value></data>
   <data name="Balloon_90Title"         xml:space="preserve"><value>Getting close</value></data>
-  <data name="Balloon_90Text"          xml:space="preserve"><value>&#x26A0; Less than {0} left</value></data>
+  <data name="Balloon_90Text"          xml:space="preserve"><value>Less than {0} left</value></data>
   <data name="Balloon_95Title"         xml:space="preserve"><value>Almost expired</value></data>
-  <data name="Balloon_95Text"          xml:space="preserve"><value>&#x1F514; Expires in {0}</value></data>
+  <data name="Balloon_95Text"          xml:space="preserve"><value>Expires in {0}</value></data>
   <data name="Balloon_UrgentTitle"     xml:space="preserve"><value>Expiring soon!</value></data>
-  <data name="Balloon_UrgentText"      xml:space="preserve"><value>&#x23F0; Insonnia stops in {0} seconds</value></data>
+  <data name="Balloon_UrgentText"      xml:space="preserve"><value>Insonnia stops in {0} seconds</value></data>
   <data name="Balloon_IdleSuspendTitle" xml:space="preserve"><value>Suspended</value></data>
-  <data name="Balloon_IdleSuspendText"  xml:space="preserve"><value>&#x1F4A4; No activity: PC may sleep</value></data>
+  <data name="Balloon_IdleSuspendText"  xml:space="preserve"><value>No activity: PC may sleep</value></data>
   <data name="Balloon_IdleResumeTitle"  xml:space="preserve"><value>Resumed</value></data>
-  <data name="Balloon_IdleResumeText"   xml:space="preserve"><value>&#x2615; Activity detected: Insonnia resumed</value></data>
+  <data name="Balloon_IdleResumeText"   xml:space="preserve"><value>Activity detected: Insonnia resumed</value></data>
 
   <!-- Tray tooltip -->
   <data name="Tray_Paused"            xml:space="preserve"><value>Insonnia - Paused</value></data>

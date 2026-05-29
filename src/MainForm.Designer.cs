@@ -11,8 +11,6 @@ namespace Insonnia
         {
             if (disposing && (components != null))
                 components.Dispose();
-            if (disposing)
-                DisposeDynamicIcon();
             base.Dispose(disposing);
         }
 
@@ -32,6 +30,8 @@ namespace Insonnia
             this.quitToolStripMenuItem    = new System.Windows.Forms.ToolStripMenuItem();
 
             this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
+            this.panelTitle        = new System.Windows.Forms.Panel();
+            this.picTitle          = new System.Windows.Forms.PictureBox();
             this.lblTitle          = new System.Windows.Forms.Label();
 
             // Riga durata
@@ -59,9 +59,11 @@ namespace Insonnia
 
             this.contextMenu.SuspendLayout();
             this.tableLayoutPanel1.SuspendLayout();
+            this.panelTitle.SuspendLayout();
             this.panelDuration.SuspendLayout();
             this.panelIdle.SuspendLayout();
             this.panelStatus.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.picTitle)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.nudCustomMinutes)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.nudIdleMinutes)).BeginInit();
             this.SuspendLayout();
@@ -122,7 +124,7 @@ namespace Insonnia
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 42F));
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 50F));
-            this.tableLayoutPanel1.Controls.Add(this.lblTitle,       0, 0);
+            this.tableLayoutPanel1.Controls.Add(this.panelTitle,     0, 0);
             this.tableLayoutPanel1.Controls.Add(this.panelDuration,  0, 1);
             this.tableLayoutPanel1.Controls.Add(this.panelIdle,      0, 2);
             this.tableLayoutPanel1.Controls.Add(this.panelStatus,    0, 3);
@@ -133,6 +135,19 @@ namespace Insonnia
             this.tableLayoutPanel1.Padding   = new System.Windows.Forms.Padding(8);
             this.tableLayoutPanel1.TabIndex  = 0;
 
+            // ── panelTitle (logo + testata) ──────────────────────────────
+            this.panelTitle.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.panelTitle.Name = "panelTitle";
+            this.panelTitle.Controls.Add(this.lblTitle);
+            this.panelTitle.Controls.Add(this.picTitle);
+
+            // ── picTitle (logo tazzina, immagine impostata a runtime) ────
+            this.picTitle.Dock     = System.Windows.Forms.DockStyle.Left;
+            this.picTitle.Width     = 44;
+            this.picTitle.Name     = "picTitle";
+            this.picTitle.SizeMode = System.Windows.Forms.PictureBoxSizeMode.CenterImage;
+            this.picTitle.TabStop  = false;
+
             // ── lblTitle ─────────────────────────────────────────────────
             this.lblTitle.Dock      = System.Windows.Forms.DockStyle.Fill;
             this.lblTitle.Font      = new System.Drawing.Font("Segoe UI", 14F, System.Drawing.FontStyle.Bold);
@@ -140,7 +155,6 @@ namespace Insonnia
             this.lblTitle.Name      = "lblTitle";
             this.lblTitle.Text      = L.UI_Title;
             this.lblTitle.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            this.lblTitle.Padding   = new System.Windows.Forms.Padding(4, 0, 0, 0);
 
             // ── panelDuration ─────────────────────────────────────────────
             this.panelDuration.Dock     = System.Windows.Forms.DockStyle.Fill;
@@ -290,12 +304,14 @@ namespace Insonnia
             this.FormClosing        += new System.Windows.Forms.FormClosingEventHandler(this.MainForm_FormClosing);
 
             this.contextMenu.ResumeLayout(false);
+            this.panelTitle.ResumeLayout(false);
             this.panelDuration.ResumeLayout(false);
             this.panelDuration.PerformLayout();
             this.panelIdle.ResumeLayout(false);
             this.panelIdle.PerformLayout();
             this.panelStatus.ResumeLayout(false);
             this.tableLayoutPanel1.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.picTitle)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.nudCustomMinutes)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.nudIdleMinutes)).EndInit();
             this.ResumeLayout(false);
@@ -313,6 +329,8 @@ namespace Insonnia
         private System.Windows.Forms.ToolStripMenuItem quitToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem startWithWindowsMenuItem;
         private System.Windows.Forms.TableLayoutPanel tableLayoutPanel1;
+        private System.Windows.Forms.Panel panelTitle;
+        private System.Windows.Forms.PictureBox picTitle;
         private System.Windows.Forms.Label lblTitle;
         private System.Windows.Forms.Panel panelDuration;
         private System.Windows.Forms.Label lblDuration;
