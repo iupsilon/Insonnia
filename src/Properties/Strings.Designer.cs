@@ -380,5 +380,245 @@ namespace Insonnia.Properties {
                 return ResourceManager.GetString("Msg_AlreadyRunning", resourceCulture);
             }
         }
+        
+        internal static string Menu_MonitorSwitch {
+            get {
+                return ResourceManager.GetString("Menu_MonitorSwitch", resourceCulture);
+            }
+        }
+        
+        internal static string Menu_MonitorSwitchEnabled {
+            get {
+                return ResourceManager.GetString("Menu_MonitorSwitchEnabled", resourceCulture);
+            }
+        }
+        
+        internal static string Menu_MonitorSwitchNow {
+            get {
+                return ResourceManager.GetString("Menu_MonitorSwitchNow", resourceCulture);
+            }
+        }
+        
+        internal static string Menu_MonitorSwitchConfigure {
+            get {
+                return ResourceManager.GetString("Menu_MonitorSwitchConfigure", resourceCulture);
+            }
+        }
+        
+        internal static string Balloon_MonitorSwitchFailed {
+            get {
+                return ResourceManager.GetString("Balloon_MonitorSwitchFailed", resourceCulture);
+            }
+        }
+        
+        internal static string MS_Enable {
+            get {
+                return ResourceManager.GetString("MS_Enable", resourceCulture);
+            }
+        }
+        
+        internal static string MS_UsbDevice {
+            get {
+                return ResourceManager.GetString("MS_UsbDevice", resourceCulture);
+            }
+        }
+        
+        internal static string MS_Monitors {
+            get {
+                return ResourceManager.GetString("MS_Monitors", resourceCulture);
+            }
+        }
+        
+        internal static string MS_MonitorId {
+            get {
+                return ResourceManager.GetString("MS_MonitorId", resourceCulture);
+            }
+        }
+        
+        internal static string MS_InputOnConnect {
+            get {
+                return ResourceManager.GetString("MS_InputOnConnect", resourceCulture);
+            }
+        }
+        
+        internal static string MS_InputOnDisconnect {
+            get {
+                return ResourceManager.GetString("MS_InputOnDisconnect", resourceCulture);
+            }
+        }
+        
+        internal static string MS_NoAction {
+            get {
+                return ResourceManager.GetString("MS_NoAction", resourceCulture);
+            }
+        }
+        
+        internal static string MS_Refresh {
+            get {
+                return ResourceManager.GetString("MS_Refresh", resourceCulture);
+            }
+        }
+        
+        internal static string MS_RefreshMonitors {
+            get {
+                return ResourceManager.GetString("MS_RefreshMonitors", resourceCulture);
+            }
+        }
+        
+        internal static string MS_CopyList {
+            get {
+                return ResourceManager.GetString("MS_CopyList", resourceCulture);
+            }
+        }
+        
+        internal static string MS_Test {
+            get {
+                return ResourceManager.GetString("MS_Test", resourceCulture);
+            }
+        }
+        
+        internal static string MS_Save {
+            get {
+                return ResourceManager.GetString("MS_Save", resourceCulture);
+            }
+        }
+        
+        internal static string MS_Cancel {
+            get {
+                return ResourceManager.GetString("MS_Cancel", resourceCulture);
+            }
+        }
+        
+        internal static string MS_ColName {
+            get {
+                return ResourceManager.GetString("MS_ColName", resourceCulture);
+            }
+        }
+        
+        internal static string MS_ColSerial {
+            get {
+                return ResourceManager.GetString("MS_ColSerial", resourceCulture);
+            }
+        }
+        
+        internal static string MS_ColInput {
+            get {
+                return ResourceManager.GetString("MS_ColInput", resourceCulture);
+            }
+        }
+        
+        internal static string MS_ColInstance {
+            get {
+                return ResourceManager.GetString("MS_ColInstance", resourceCulture);
+            }
+        }
+        
+        internal static string MS_ColDisplay {
+            get {
+                return ResourceManager.GetString("MS_ColDisplay", resourceCulture);
+            }
+        }
+        
+        internal static string MS_Detecting {
+            get {
+                return ResourceManager.GetString("MS_Detecting", resourceCulture);
+            }
+        }
+        
+        internal static string MS_Detected {
+            get {
+                return ResourceManager.GetString("MS_Detected", resourceCulture);
+            }
+        }
+        
+        internal static string MS_DdcUnavailable {
+            get {
+                return ResourceManager.GetString("MS_DdcUnavailable", resourceCulture);
+            }
+        }
+        
+        internal static string MS_Copied {
+            get {
+                return ResourceManager.GetString("MS_Copied", resourceCulture);
+            }
+        }
+        
+        internal static string MS_Sending {
+            get {
+                return ResourceManager.GetString("MS_Sending", resourceCulture);
+            }
+        }
+        
+        internal static string MS_InvalidUsb {
+            get {
+                return ResourceManager.GetString("MS_InvalidUsb", resourceCulture);
+            }
+        }
+        
+        internal static string MS_InvalidInput {
+            get {
+                return ResourceManager.GetString("MS_InvalidInput", resourceCulture);
+            }
+        }
+        
+        internal static string MS_MissingMonitor {
+            get {
+                return ResourceManager.GetString("MS_MissingMonitor", resourceCulture);
+            }
+        }
+        
+        internal static string MS_Outcome_Switched {
+            get {
+                return ResourceManager.GetString("MS_Outcome_Switched", resourceCulture);
+            }
+        }
+        
+        internal static string MS_Outcome_AlreadyActive {
+            get {
+                return ResourceManager.GetString("MS_Outcome_AlreadyActive", resourceCulture);
+            }
+        }
+        
+        internal static string MS_Outcome_NotConfigured {
+            get {
+                return ResourceManager.GetString("MS_Outcome_NotConfigured", resourceCulture);
+            }
+        }
+        
+        internal static string MS_Outcome_NotFound {
+            get {
+                return ResourceManager.GetString("MS_Outcome_NotFound", resourceCulture);
+            }
+        }
+        
+        internal static string MS_Outcome_Ambiguous {
+            get {
+                return ResourceManager.GetString("MS_Outcome_Ambiguous", resourceCulture);
+            }
+        }
+        
+        internal static string MS_Outcome_DdcError {
+            get {
+                return ResourceManager.GetString("MS_Outcome_DdcError", resourceCulture);
+            }
+        }
+        
+        internal static string UI_Subtitle {
+            get {
+                return ResourceManager.GetString("UI_Subtitle", resourceCulture);
+            }
+        }
+        
+        internal static string UI_RingElapsed {
+            get {
+                return ResourceManager.GetString("UI_RingElapsed", resourceCulture);
+            }
+        }
+        
+        internal static string UI_RingRemaining {
+            get {
+                return ResourceManager.GetString("UI_RingRemaining", resourceCulture);
+            }
+        }
     }
 }

@@ -2,6 +2,7 @@
 using System;
 using System.Threading;
 using System.Windows.Forms;
+using Insonnia.Forms;
 
 namespace Insonnia
 {

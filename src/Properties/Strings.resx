@@ -71,6 +71,9 @@
   <data name="UI_StatusTimer"    xml:space="preserve"><value>Rimanente: {0}</value></data>
   <data name="UI_IdleSuspendLabel" xml:space="preserve"><value>Sospendi se inattivo:</value></data>
   <data name="UI_StatusIdleSuspended" xml:space="preserve"><value>Sospeso per inattività</value></data>
+  <data name="UI_Subtitle" xml:space="preserve"><value>Tieni sveglio il tuo PC</value></data>
+  <data name="UI_RingElapsed" xml:space="preserve"><value>attivo da</value></data>
+  <data name="UI_RingRemaining" xml:space="preserve"><value>rimanenti</value></data>
 
   <!-- Durate combo -->
   <data name="Duration_Infinite"    xml:space="preserve"><value>&#x221E;  Sempre attivo</value></data>
@@ -122,5 +125,44 @@
 
   <!-- Mutex / avvio -->
   <data name="Msg_AlreadyRunning" xml:space="preserve"><value>Insonnia è già in esecuzione.</value></data>
+
+  <!-- Cambio ingresso monitor -->
+  <data name="Menu_MonitorSwitch" xml:space="preserve"><value>Cambio ingresso monitor</value></data>
+  <data name="Menu_MonitorSwitchEnabled" xml:space="preserve"><value>Cambio automatico attivo</value></data>
+  <data name="Menu_MonitorSwitchNow" xml:space="preserve"><value>Passa ora a: {0}</value></data>
+  <data name="Menu_MonitorSwitchConfigure" xml:space="preserve"><value>Configura...</value></data>
+  <data name="Balloon_MonitorSwitchFailed" xml:space="preserve"><value>Cambio ingresso non riuscito</value></data>
+  <data name="MS_Enable" xml:space="preserve"><value>Cambia l'ingresso del monitor quando il dispositivo USB si collega o si scollega</value></data>
+  <data name="MS_UsbDevice" xml:space="preserve"><value>Dispositivo USB (VID:PID):</value></data>
+  <data name="MS_Monitors" xml:space="preserve"><value>Monitor rilevati (seleziona quello da comandare):</value></data>
+  <data name="MS_MonitorId" xml:space="preserve"><value>ID monitor (seriale EDID o istanza):</value></data>
+  <data name="MS_InputOnConnect" xml:space="preserve"><value>Ingresso alla connessione:</value></data>
+  <data name="MS_InputOnDisconnect" xml:space="preserve"><value>Ingresso alla disconnessione:</value></data>
+  <data name="MS_NoAction" xml:space="preserve"><value>Nessuna azione</value></data>
+  <data name="MS_Refresh" xml:space="preserve"><value>Aggiorna</value></data>
+  <data name="MS_RefreshMonitors" xml:space="preserve"><value>Aggiorna elenco</value></data>
+  <data name="MS_CopyList" xml:space="preserve"><value>Copia elenco</value></data>
+  <data name="MS_Test" xml:space="preserve"><value>Prova</value></data>
+  <data name="MS_Save" xml:space="preserve"><value>Salva</value></data>
+  <data name="MS_Cancel" xml:space="preserve"><value>Annulla</value></data>
+  <data name="MS_ColName" xml:space="preserve"><value>Nome</value></data>
+  <data name="MS_ColSerial" xml:space="preserve"><value>Seriale EDID</value></data>
+  <data name="MS_ColInput" xml:space="preserve"><value>Ingresso attuale</value></data>
+  <data name="MS_ColInstance" xml:space="preserve"><value>Istanza dispositivo</value></data>
+  <data name="MS_ColDisplay" xml:space="preserve"><value>Schermo</value></data>
+  <data name="MS_Detecting" xml:space="preserve"><value>Rilevamento monitor in corso...</value></data>
+  <data name="MS_Detected" xml:space="preserve"><value>Monitor rilevati: {0}</value></data>
+  <data name="MS_DdcUnavailable" xml:space="preserve"><value>DDC/CI non disponibile</value></data>
+  <data name="MS_Copied" xml:space="preserve"><value>Elenco copiato negli appunti.</value></data>
+  <data name="MS_Sending" xml:space="preserve"><value>Invio del comando in corso...</value></data>
+  <data name="MS_InvalidUsb" xml:space="preserve"><value>ID USB non valido. Usa il formato VID:PID, ad esempio 046D:C52B.</value></data>
+  <data name="MS_InvalidInput" xml:space="preserve"><value>Ingresso non valido. Scegli una voce o indica un valore 1-255 (es. 0x0F).</value></data>
+  <data name="MS_MissingMonitor" xml:space="preserve"><value>Seleziona o indica il monitor da comandare.</value></data>
+  <data name="MS_Outcome_Switched" xml:space="preserve"><value>Ingresso impostato: {0}</value></data>
+  <data name="MS_Outcome_AlreadyActive" xml:space="preserve"><value>Ingresso già attivo: {0}</value></data>
+  <data name="MS_Outcome_NotConfigured" xml:space="preserve"><value>Monitor o ingresso non configurati.</value></data>
+  <data name="MS_Outcome_NotFound" xml:space="preserve"><value>Monitor '{0}' non trovato.</value></data>
+  <data name="MS_Outcome_Ambiguous" xml:space="preserve"><value>L'ID '{0}' corrisponde a più monitor: usa l'istanza dispositivo.</value></data>
+  <data name="MS_Outcome_DdcError" xml:space="preserve"><value>Comando DDC/CI non riuscito: {0}</value></data>
 </root>
 
