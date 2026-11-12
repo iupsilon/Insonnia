@@ -12,7 +12,8 @@
 - ⏱️ **Configurable duration** — always-on or with an auto-stop timer
 - 💤 **Idle auto-suspend** *(optional)* — if you walk away, releases the lock after N idle minutes so the PC can sleep, then resumes automatically on the next keyboard/mouse activity
 - 🔕 **Minimal notifications** — a single balloon when the timer expires; everything else stays silent (status lives in the window and tray tooltip)
-- 📊 **Live progress bar** with color feedback (green → orange → red)
+- 🎨 **Fluent design** — light/dark theme that follows Windows, Windows 11 title bar and rounded corners, Segoe UI Variable typography and Segoe Fluent icons, custom buttons, toggles and tray menu
+- ⭕ **Live progress ring** with the time in the centre and color feedback (green → orange → red)
 - ☕ **Mode-aware tray icon** — a coffee cup with a small overlay that shows the current mode at a glance: a clock for a running timer, a "zzz" when idle-suspended, no overlay when always-on, grey when stopped
 - 🕐 **Elapsed / remaining time** shown in real time in the form and tray tooltip
 - 🌍 **Bilingual UI** — Italian and English, auto-detected from Windows language
@@ -20,6 +21,7 @@
 - 🔁 **Start with Windows** option (system tray menu)
 - 🪟 **Minimizes to tray** — close button hides the window, app stays alive
 - 🔒 **Single instance** — prevents accidental double launch
+- 🖥️ **Monitor input switch** *(optional)* — switches a monitor's input via DDC/CI when a USB device (e.g. a keyboard/mouse switch) connects or disconnects
 
 ---
 
@@ -44,11 +46,12 @@ No installer required. Download the latest release, extract and run `Insonnia.ex
 |---|---|
 | **Duration** combo | Choose how long to keep the PC awake |
 | **Custom minutes** field | Appears when "Custom..." is selected — enter any value from 1 to 999 minutes |
-| **Suspend if idle** check + minutes | When enabled, releases keep-awake after the given idle minutes (1–240) and resumes on activity |
-| **▶ Start** | Activates keep-awake with the selected duration |
-| **■ Stop** | Deactivates keep-awake immediately |
-| Status label | Shows elapsed time (∞ mode) or remaining time (timer mode) |
-| Progress bar | Visible in timer mode — fills left-to-right, changes color near expiry |
+| **Suspend if idle** toggle + minutes | When enabled, releases keep-awake after the given idle minutes (1–240) and resumes on activity. Minutes can be typed or changed with the mouse wheel / arrow keys |
+| **Start** | Activates keep-awake with the selected duration |
+| **Stop** | Deactivates keep-awake immediately |
+| Progress ring | Shows the time in the centre: elapsed (∞ mode, full amber ring), remaining (timer mode, the arc shrinks and turns orange/red near expiry), idle-suspended (indigo) |
+
+The window follows the Windows light/dark setting (*Settings → Personalization → Colors*) and switches live when it changes.
 
 ### Duration Options
 
@@ -71,6 +74,7 @@ Right-click the tray icon to access:
 | **▶ Start / ■ Stop** | Toggles keep-awake (mirrors the form buttons) |
 | **Duration ▶** | Submenu to select duration without opening the form |
 | **Idle suspend ▶** | Submenu to set the idle auto-suspend threshold (Off / 10 / 20 / 30 / 60 min / Custom) |
+| **Monitor input switch ▶** | Enable/disable automatic switching, switch the input now or open the configuration window |
 | **Start with Windows** | Toggles auto-launch at Windows login |
 | **Quit** | Fully exits the application |
 
@@ -154,6 +158,39 @@ The duration countdown keeps running on wall-clock time while suspended, so a fi
 
 ---
 
+## 🖥️ Monitor Input Switch (DDC/CI)
+
+For two PCs sharing a monitor and a USB keyboard/mouse switch: when the switch moves, Insonnia sends the monitor a DDC/CI command (VCP `0x60`, *Input Source*) to show the PC that now has the keyboard. Run Insonnia on both PCs.
+
+### Configuration
+
+Open **Monitor input switch ▶ Configure...** from the tray menu:
+
+| Field | Description |
+|---|---|
+| **USB device (VID:PID)** | The device to watch, e.g. `046D:C52B`. The list shows the USB devices currently connected |
+| **Detected monitors** | Every monitor with its EDID name, **EDID serial**, current input and device instance. Selecting a row fills the monitor ID. **Copy list** copies it to the clipboard |
+| **Monitor ID** | EDID serial (preferred: it tells identical monitors apart and is the same on both PCs) or device instance path |
+| **Input on connect / disconnect** | Input to select when the USB device appears / disappears (DisplayPort 1 = `0x0F`, HDMI 1 = `0x11`, ...). "No action" disables that event. **Test** sends the command immediately |
+
+Typical setup — PC A on DisplayPort, PC B on HDMI:
+
+| PC | Input on connect | Input on disconnect |
+|---|---|---|
+| A (DisplayPort) | DisplayPort 1 | HDMI 1 |
+| B (HDMI) | HDMI 1 | DisplayPort 1 |
+
+The *disconnect* event matters: many monitors only accept DDC/CI commands from the input currently shown, so the switch is driven by the PC that is losing the keyboard.
+
+### Behaviour
+
+- USB changes are detected with `WM_DEVICECHANGE` (no polling). Bursts of events (composite devices, USB switch hubs) are **debounced** (1.5 s) and only a real change of state sends a command.
+- The current input is read first: if it already matches, no command is sent.
+- Only the configured monitor is ever addressed. If the ID matches no monitor or more than one, nothing is sent.
+- Automatic switches are silent and errors (e.g. DDC/CI not passing through a docking station) never crash the app. A failed **manual** switch from the tray shows a balloon with the reason; **Test** in the configuration window shows the result in its status line.
+
+---
+
 ## 💾 Persistent Settings
 
 The following preferences are automatically saved and restored on next launch:
@@ -163,6 +200,7 @@ The following preferences are automatically saved and restored on next launch:
 | **Selected duration** | The last duration option chosen (e.g. "1 hour") |
 | **Custom minutes** | The last custom duration value entered |
 | **Idle suspend** | Whether idle auto-suspend is enabled, and its threshold in minutes |
+| **Monitor input switch** | Enabled flag, USB device, monitor ID, inputs on connect/disconnect |
 
 Settings are stored in `%APPDATA%\Insonnia\` via the standard .NET `ApplicationSettingsBase` mechanism.
 
@@ -171,19 +209,36 @@ Settings are stored in `%APPDATA%\Insonnia\` via the standard .NET `ApplicationS
 ## 📁 Project Structure
 
 ```
+tools/
+└── MakeAppIcon.ps1               # Regenerates src/insonnia.ico (16–256 px) from the vector cup
 src/
-├── MainForm.cs            # Main form logic
-├── MainForm.Designer.cs   # UI layout
-├── TrayIconRenderer.cs    # Vector coffee-cup tray icons + mode overlays
-├── Win32Interop.cs        # SetThreadExecutionState + idle-time P/Invoke
-├── Extensions.cs          # Bitmap → Icon helper
-├── Program.cs             # Entry point + single-instance Mutex
+├── Insonnia.sln / Insonnia.csproj
+├── insonnia.ico                  # Application icon (desktop, Explorer, taskbar)
+├── Program.cs                    # Entry point + single-instance Mutex
+├── Forms/                        # Insonnia.Forms
+│   ├── MainForm.cs               # Main window logic + tray menu
+│   ├── MainForm.Designer.cs      # Main window layout (hand-written)
+│   ├── MonitorSwitchForm.cs      # Monitor input switch configuration window
+│   └── MonitorSwitchForm.Designer.cs
+├── UI/                           # Insonnia.UI
+│   ├── Theme.cs                  # Light/dark palette, fonts, Fluent glyphs, Windows 11 chrome
+│   ├── ModernControls.cs         # Button, toggle, combo, progress ring, card, tray menu renderer
+│   ├── TrayIconRenderer.cs       # Vector coffee-cup tray icons + mode overlays
+│   └── Extensions.cs             # Bitmap → Icon helper
+├── MonitorSwitch/                # Insonnia.MonitorSwitch
+│   ├── MonitorControl.cs         # DDC/CI (dxva2): monitor enumeration, EDID identity, VCP 0x60
+│   ├── UsbDeviceWatcher.cs       # USB connect/disconnect via WM_DEVICECHANGE
+│   └── MonitorInputSwitcher.cs   # USB events → debounce → input switch
+├── Interop/                      # Insonnia.Interop
+│   └── Win32Interop.cs           # SetThreadExecutionState + idle-time P/Invoke
 └── Properties/
-    ├── Strings.resx        # Italian strings (default)
-    ├── StringsEn.resx      # English strings
-    ├── StringsHelper.cs    # Localization wrapper (class L)
-    └── Settings.settings   # User preferences (duration, custom minutes, idle suspend)
+    ├── Strings.resx              # Italian strings
+    ├── StringsEn.resx            # English strings (default)
+    ├── StringsHelper.cs          # Localization wrapper (class L)
+    └── Settings.settings         # User preferences
 ```
+
+> The form layouts are hand-written (localized texts via `L.*`, custom controls): do not open them in the Visual Studio WinForms designer, which would re-serialize the texts as constants.
 
 ---
 

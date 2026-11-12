@@ -1,7 +1,7 @@
 using System.Drawing;
 using System.Drawing.Drawing2D;
 
-namespace Insonnia
+namespace Insonnia.UI
 {
     /// <summary>
     /// Disegna a vettore le icone di stato del tray (tazzina di caffè), pensate per essere
@@ -65,6 +65,49 @@ namespace Insonnia
             }
         }
 
+        // ── icona applicazione (desktop / Esplora risorse / barra applicazioni) ──
+        private static readonly Color TileTop    = Color.FromArgb(0xF6, 0xB6, 0x5A); // ambra chiara
+        private static readonly Color TileBottom = Color.FromArgb(0xD6, 0x6F, 0x27); // caramello
+        private static readonly Color CupCream   = Color.FromArgb(0xFF, 0xF7, 0xEA); // tazzina crema
+        private static readonly Color CupBrew    = Color.FromArgb(0x6B, 0x40, 0x2A); // espresso
+
+        /// <summary>
+        /// Icona dell'applicazione a <paramref name="size"/> px: riquadro arrotondato con gradiente ambra
+        /// e tazzina crema centrata otticamente. Sotto i 32 px il vapore è omesso e la tazzina ingrandita,
+        /// per restare nitida. Usata da tools\MakeAppIcon.ps1 per generare coffee.ico.
+        /// </summary>
+        public static Bitmap RenderAppIcon(int size)
+        {
+            Bitmap bmp = new Bitmap(size, size);
+            using (Graphics g = Prepare(bmp))
+            {
+                g.Clear(Color.Transparent);
+
+                // riquadro con margine minimo (come le icone di sistema) e angoli ~22%
+                float margin = size >= 48 ? size * 0.06f : size >= 24 ? 1f : 0f;
+                RectangleF tile = new RectangleF(margin, margin, size - 2 * margin, size - 2 * margin);
+                using (GraphicsPath path = Theme.RoundedRect(tile, tile.Width * 0.22f))
+                using (LinearGradientBrush brush = new LinearGradientBrush(tile, TileTop, TileBottom, LinearGradientMode.Vertical))
+                    g.FillPath(brush, path);
+
+                // tazzina disegnata nello spazio 32x32 dell'icona del tray, ricentrata:
+                // ingombro orizzontale 6.5..28.7 (manico incluso), verticale -1..27 col vapore, 9.5..27 senza
+                bool  steam   = size >= 32;
+                float centerX = 17.6f;
+                float centerY = steam ? 13f : 18.3f;
+                float scale   = tile.Width / 32f * (steam ? 0.74f : 0.92f);
+
+                GraphicsState state = g.Save();
+                g.TranslateTransform(size / 2f, size / 2f);
+                g.ScaleTransform(scale, scale);
+                g.TranslateTransform(-centerX, -centerY);
+                if (steam) DrawSteam(g, CupCream);
+                DrawCup(g, CupCream, CupBrew);
+                g.Restore(state);
+            }
+            return bmp;
+        }
+
         private enum Overlay { None, Clock, Zzz }
 
         private static Icon Build(Color body, Color brew, Overlay overlay, bool steam)
@@ -100,7 +143,8 @@ namespace Insonnia
                 {
                     handle.StartCap = LineCap.Round;
                     handle.EndCap   = LineCap.Round;
-                    g.DrawArc(handle, 19f, 14.5f, 9.5f, 9f, -68f, 136f);
+                    // arco ampio: le estremità finiscono sotto il corpo, così il manico non resta "staccato"
+                    g.DrawArc(handle, 19f, 14.5f, 9.5f, 9f, -105f, 210f);
                 }
 
                 // Corpo: rettangolo arrotondato, leggermente più tondo in basso (aspetto "cicciotto")

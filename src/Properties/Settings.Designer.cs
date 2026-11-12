@@ -69,5 +69,65 @@ namespace Insonnia.Properties {
                 this["IdleThresholdMinutes"] = value;
             }
         }
+
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool MonitorSwitchEnabled {
+            get {
+                return ((bool)(this["MonitorSwitchEnabled"]));
+            }
+            set {
+                this["MonitorSwitchEnabled"] = value;
+            }
+        }
+
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string MonitorSwitchUsbId {
+            get {
+                return ((string)(this["MonitorSwitchUsbId"]));
+            }
+            set {
+                this["MonitorSwitchUsbId"] = value;
+            }
+        }
+
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string MonitorSwitchMonitorId {
+            get {
+                return ((string)(this["MonitorSwitchMonitorId"]));
+            }
+            set {
+                this["MonitorSwitchMonitorId"] = value;
+            }
+        }
+
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("0")]
+        public int MonitorSwitchInputOnConnect {
+            get {
+                return ((int)(this["MonitorSwitchInputOnConnect"]));
+            }
+            set {
+                this["MonitorSwitchInputOnConnect"] = value;
+            }
+        }
+
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("0")]
+        public int MonitorSwitchInputOnDisconnect {
+            get {
+                return ((int)(this["MonitorSwitchInputOnDisconnect"]));
+            }
+            set {
+                this["MonitorSwitchInputOnDisconnect"] = value;
+            }
+        }
     }
 }
