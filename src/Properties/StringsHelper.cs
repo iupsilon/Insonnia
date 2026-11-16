@@ -35,6 +35,9 @@ namespace Insonnia.Properties
         { return string.Format(Get(Strings.UI_StatusTimer, StringsEn.UI_StatusTimer), t); }
         public static string UI_IdleSuspendLabel    { get { return Get(Strings.UI_IdleSuspendLabel,    StringsEn.UI_IdleSuspendLabel); } }
         public static string UI_StatusIdleSuspended  { get { return Get(Strings.UI_StatusIdleSuspended, StringsEn.UI_StatusIdleSuspended); } }
+        public static string UI_Subtitle       { get { return Get(Strings.UI_Subtitle,       StringsEn.UI_Subtitle); } }
+        public static string UI_RingElapsed    { get { return Get(Strings.UI_RingElapsed,    StringsEn.UI_RingElapsed); } }
+        public static string UI_RingRemaining  { get { return Get(Strings.UI_RingRemaining,  StringsEn.UI_RingRemaining); } }
         // Durate combo
         public static string Duration_Infinite { get { return Get(Strings.Duration_Infinite, StringsEn.Duration_Infinite); } }
         public static string Duration_30min    { get { return Get(Strings.Duration_30min,    StringsEn.Duration_30min); } }
@@ -92,5 +95,51 @@ namespace Insonnia.Properties
         public static string Tray_IdleSuspended { get { return Get(Strings.Tray_IdleSuspended, StringsEn.Tray_IdleSuspended); } }
         // Messaggi
         public static string Msg_AlreadyRunning { get { return Get(Strings.Msg_AlreadyRunning, StringsEn.Msg_AlreadyRunning); } }
+        // Cambio ingresso monitor — menu tray
+        public static string Menu_MonitorSwitch          { get { return Get(Strings.Menu_MonitorSwitch,          StringsEn.Menu_MonitorSwitch); } }
+        public static string Menu_MonitorSwitchEnabled   { get { return Get(Strings.Menu_MonitorSwitchEnabled,   StringsEn.Menu_MonitorSwitchEnabled); } }
+        public static string Menu_MonitorSwitchConfigure { get { return Get(Strings.Menu_MonitorSwitchConfigure, StringsEn.Menu_MonitorSwitchConfigure); } }
+        public static string Menu_MonitorSwitchNow(string input)
+        { return string.Format(Get(Strings.Menu_MonitorSwitchNow, StringsEn.Menu_MonitorSwitchNow), input); }
+        public static string Balloon_MonitorSwitchFailed { get { return Get(Strings.Balloon_MonitorSwitchFailed, StringsEn.Balloon_MonitorSwitchFailed); } }
+        // Cambio ingresso monitor — finestra di configurazione
+        public static string MS_Enable            { get { return Get(Strings.MS_Enable,            StringsEn.MS_Enable); } }
+        public static string MS_UsbDevice         { get { return Get(Strings.MS_UsbDevice,         StringsEn.MS_UsbDevice); } }
+        public static string MS_Monitors          { get { return Get(Strings.MS_Monitors,          StringsEn.MS_Monitors); } }
+        public static string MS_MonitorId         { get { return Get(Strings.MS_MonitorId,         StringsEn.MS_MonitorId); } }
+        public static string MS_InputOnConnect    { get { return Get(Strings.MS_InputOnConnect,    StringsEn.MS_InputOnConnect); } }
+        public static string MS_InputOnDisconnect { get { return Get(Strings.MS_InputOnDisconnect, StringsEn.MS_InputOnDisconnect); } }
+        public static string MS_NoAction          { get { return Get(Strings.MS_NoAction,          StringsEn.MS_NoAction); } }
+        public static string MS_Refresh           { get { return Get(Strings.MS_Refresh,           StringsEn.MS_Refresh); } }
+        public static string MS_RefreshMonitors   { get { return Get(Strings.MS_RefreshMonitors,   StringsEn.MS_RefreshMonitors); } }
+        public static string MS_CopyList          { get { return Get(Strings.MS_CopyList,          StringsEn.MS_CopyList); } }
+        public static string MS_Test              { get { return Get(Strings.MS_Test,              StringsEn.MS_Test); } }
+        public static string MS_Save              { get { return Get(Strings.MS_Save,              StringsEn.MS_Save); } }
+        public static string MS_Cancel            { get { return Get(Strings.MS_Cancel,            StringsEn.MS_Cancel); } }
+        public static string MS_ColName           { get { return Get(Strings.MS_ColName,           StringsEn.MS_ColName); } }
+        public static string MS_ColSerial         { get { return Get(Strings.MS_ColSerial,         StringsEn.MS_ColSerial); } }
+        public static string MS_ColInput          { get { return Get(Strings.MS_ColInput,          StringsEn.MS_ColInput); } }
+        public static string MS_ColInstance       { get { return Get(Strings.MS_ColInstance,       StringsEn.MS_ColInstance); } }
+        public static string MS_ColDisplay        { get { return Get(Strings.MS_ColDisplay,        StringsEn.MS_ColDisplay); } }
+        public static string MS_Detecting         { get { return Get(Strings.MS_Detecting,         StringsEn.MS_Detecting); } }
+        public static string MS_Detected(int count)
+        { return string.Format(Get(Strings.MS_Detected, StringsEn.MS_Detected), count); }
+        public static string MS_DdcUnavailable    { get { return Get(Strings.MS_DdcUnavailable,    StringsEn.MS_DdcUnavailable); } }
+        public static string MS_Copied            { get { return Get(Strings.MS_Copied,            StringsEn.MS_Copied); } }
+        public static string MS_Sending           { get { return Get(Strings.MS_Sending,           StringsEn.MS_Sending); } }
+        public static string MS_InvalidUsb        { get { return Get(Strings.MS_InvalidUsb,        StringsEn.MS_InvalidUsb); } }
+        public static string MS_InvalidInput      { get { return Get(Strings.MS_InvalidInput,      StringsEn.MS_InvalidInput); } }
+        public static string MS_MissingMonitor    { get { return Get(Strings.MS_MissingMonitor,    StringsEn.MS_MissingMonitor); } }
+        public static string MS_Outcome_NotConfigured { get { return Get(Strings.MS_Outcome_NotConfigured, StringsEn.MS_Outcome_NotConfigured); } }
+        public static string MS_Outcome_DdcError(string detail)
+        { return string.Format(Get(Strings.MS_Outcome_DdcError, StringsEn.MS_Outcome_DdcError), detail); }
+        public static string MS_Outcome_Switched(string input)
+        { return string.Format(Get(Strings.MS_Outcome_Switched, StringsEn.MS_Outcome_Switched), input); }
+        public static string MS_Outcome_AlreadyActive(string input)
+        { return string.Format(Get(Strings.MS_Outcome_AlreadyActive, StringsEn.MS_Outcome_AlreadyActive), input); }
+        public static string MS_Outcome_NotFound(string monitorId)
+        { return string.Format(Get(Strings.MS_Outcome_NotFound, StringsEn.MS_Outcome_NotFound), monitorId); }
+        public static string MS_Outcome_Ambiguous(string monitorId)
+        { return string.Format(Get(Strings.MS_Outcome_Ambiguous, StringsEn.MS_Outcome_Ambiguous), monitorId); }
     }
 }

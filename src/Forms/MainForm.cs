@@ -4,8 +4,11 @@ using System.Drawing;
 using System.Reflection;
 using System.Windows.Forms;
 using Insonnia.Properties;
+using Insonnia.Interop;
+using Insonnia.MonitorSwitch;
+using Insonnia.UI;
 
-namespace Insonnia
+namespace Insonnia.Forms
 {
     public partial class MainForm : Form
     {
@@ -69,10 +72,24 @@ namespace Insonnia
         // ultimo valore inattività usato (in minuti), per la voce "Personalizzato" del menu
         private int _lastIdleMinutes = 20;
 
+        // ── cambio ingresso monitor (DDC/CI su evento USB) ─────────────────
+        private MonitorInputSwitcher _monitorSwitcher;
+        private MonitorSwitchForm    _monitorSwitchForm;   // finestra di configurazione aperta (una sola)
+
         // ────────────────────────────────────────────────────────────────
         public MainForm(bool autoStart)
         {
             InitializeComponent();
+
+            // Menu del tray e sottomenu disegnati dal renderer Fluent (segue il tema)
+            ToolStripManager.Renderer = new ModernMenuRenderer();
+            contextMenu.Opened += delegate { Theme.ApplyMenuChrome(contextMenu); };
+            foreach (ToolStripMenuItem sub in new[] { durationMenuItem, idleMenuItem, monitorSwitchMenuItem })
+            {
+                ToolStripDropDown dropDown = sub.DropDown;
+                dropDown.Opened += delegate { Theme.ApplyMenuChrome(dropDown); };
+            }
+            Theme.Changed += Theme_Changed;
 
             for (int i = 0; i < DurationLabels.Length; i++)
                 cmbDuration.Items.Add(DurationLabels[i]);
@@ -103,11 +120,17 @@ namespace Insonnia
             RebuildDurationMenu();
             RebuildIdleMenu();
             SetTrayIcon(TrayIconRenderer.Stopped);
-            picTitle.Image = TrayIconRenderer.Logo;
+            ApplyTheme();
 
             // Versione assembly
             Version ver = Assembly.GetExecutingAssembly().GetName().Version;
             lblVersion.Text = string.Format("v{0}.{1}.{2}", ver.Major, ver.Minor, ver.Build);
+
+            // Cambio ingresso monitor: il watcher USB parte solo se la funzione è abilitata
+            _monitorSwitcher = new MonitorInputSwitcher();
+            _monitorSwitcher.SwitchCompleted += MonitorSwitcher_SwitchCompleted;
+            _monitorSwitcher.Restart();
+            RebuildMonitorSwitchMenu();
 
             if (autoStart)
             {
@@ -243,34 +266,47 @@ namespace Insonnia
             btnStop.Visible             = _keepAwake;
             cmbDuration.Enabled         = !_keepAwake;
             nudCustomMinutes.Enabled    = !_keepAwake;
-            progressTimer.Visible       = false;
 
             // Configurazione inattività modificabile solo a sessione ferma (come la durata)
             chkIdleSuspend.Enabled = !_keepAwake;
             nudIdleMinutes.Enabled = !_keepAwake && chkIdleSuspend.Checked;
 
             // Aggiorna voce tray start/stop
-            startStopMenuItem.Text = _keepAwake ? L.Menu_Stop : L.Menu_Start;
+            startStopMenuItem.Text = Theme.PlainText(_keepAwake ? L.Menu_Stop : L.Menu_Start);
+            SetMenuGlyph(startStopMenuItem,
+                _keepAwake ? Theme.GlyphStop : Theme.GlyphPlay,
+                _keepAwake ? Theme.Current.Danger : Theme.Current.Accent);
             // Durata e inattività selezionabili solo se non attivo
             durationMenuItem.Enabled = !_keepAwake;
             idleMenuItem.Enabled     = !_keepAwake;
         }
 
+        /// <summary>
+        /// Aggiorna l'anello di stato: tempo al centro, didascalia e colore secondo la modalità.
+        ///  fermo → anello vuoto; illimitato → anello pieno ambra (tempo trascorso);
+        ///  timer → arco del tempo residuo verde/arancio/rosso; sospeso → anello indaco.
+        /// </summary>
         private void UpdateStatusDisplay(TimeSpan elapsed)
         {
+            Theme t = Theme.Current;
+
             if (!_keepAwake)
             {
-                lblStatus.Text      = L.UI_StatusPaused;
-                lblStatus.ForeColor = Color.Gray;
-                progressTimer.Visible = false;
+                progressTimer.Fraction = 0f;
+                progressTimer.Muted    = true;
+                progressTimer.Text     = FormatTime(TimeSpan.Zero);
+                progressTimer.Caption  = L.UI_StatusPaused;
                 return;
             }
 
+            progressTimer.Muted = false;
+
             if (_idleSuspended)
             {
-                lblStatus.Text        = L.UI_StatusIdleSuspended;
-                lblStatus.ForeColor   = Color.SlateGray;
-                progressTimer.Visible = false;
+                progressTimer.Fraction  = 1f;
+                progressTimer.RingColor = t.Idle;
+                progressTimer.Text      = FormatTime(elapsed);
+                progressTimer.Caption   = L.UI_StatusIdleSuspended;
                 return;
             }
 
@@ -282,25 +318,77 @@ namespace Insonnia
                 double ratio = elapsed.TotalSeconds / _maxDuration.Value.TotalSeconds;
                 bool urgent  = remaining.TotalSeconds <= UrgentSecs;
 
-                lblStatus.Text = L.UI_StatusTimer(FormatTime(remaining));
-                lblStatus.ForeColor = urgent ? Color.Crimson : Color.FromArgb(0, 120, 60);
-
-                progressTimer.Visible = true;
-                progressTimer.Maximum = (int)_maxDuration.Value.TotalSeconds;
-                progressTimer.Value   = Math.Min((int)elapsed.TotalSeconds, progressTimer.Maximum);
-
-                Color barColor;
-                if (urgent)             barColor = Color.Crimson;
-                else if (ratio >= 0.75) barColor = Color.Orange;
-                else                    barColor = Color.FromArgb(0, 153, 76);
-                SetProgressBarColor(progressTimer, barColor);
+                progressTimer.Fraction  = (float)(remaining.TotalSeconds / _maxDuration.Value.TotalSeconds);
+                progressTimer.RingColor = urgent ? t.Critical : ratio >= 0.75 ? t.Warning : t.Success;
+                progressTimer.Text      = FormatTime(remaining);
+                progressTimer.Caption   = L.UI_RingRemaining;
             }
             else
             {
-                lblStatus.Text        = L.UI_StatusActive(FormatTime(elapsed));
-                lblStatus.ForeColor   = Color.FromArgb(0, 102, 204);
-                progressTimer.Visible = false;
+                progressTimer.Fraction  = 1f;
+                progressTimer.RingColor = t.Accent;
+                progressTimer.Text      = FormatTime(elapsed);
+                progressTimer.Caption   = L.UI_RingElapsed;
             }
+        }
+
+        // ── tema ──────────────────────────────────────────────────────────
+        /// <summary>Applica il tema corrente (chiaro/scuro) a finestra, controlli e menu del tray.</summary>
+        private void ApplyTheme()
+        {
+            Theme t = Theme.Current;
+            BackColor = t.Background;
+            ForeColor = t.Text;
+            Theme.Apply(this);
+            lblSubtitle.ForeColor = t.TextMuted;
+            lblVersion.ForeColor  = t.TextMuted;
+            Theme.ApplyWindowChrome(this);
+
+            // menu del tray: font e icone Fluent
+            Font menuFont = Theme.UiFont(9.5f);
+            contextMenu.Font       = menuFont;
+            startStopMenuItem.Font = Theme.UiFont(9.5f, FontStyle.Bold);
+            foreach (ToolStripMenuItem sub in new[] { durationMenuItem, idleMenuItem, monitorSwitchMenuItem })
+            {
+                sub.DropDown.Font    = menuFont;
+                sub.DropDown.Padding = new Padding(4, 6, 4, 6);
+            }
+            SetMenuGlyph(showToolStripMenuItem, Theme.GlyphWindow,  t.Text);
+            SetMenuGlyph(durationMenuItem,      Theme.GlyphClock,   t.Text);
+            SetMenuGlyph(idleMenuItem,          Theme.GlyphMoon,    t.Text);
+            SetMenuGlyph(monitorSwitchMenuItem, Theme.GlyphMonitor, t.Text);
+            SetMenuGlyph(quitToolStripMenuItem, Theme.GlyphClose,   t.Text);
+
+            UpdateUI();
+            UpdateStatusDisplay(_insonniaStarted.HasValue ? DateTime.Now - _insonniaStarted.Value : TimeSpan.Zero);
+            Invalidate(true);
+        }
+
+        /// <summary>Sostituisce l'icona (glifo) di una voce di menu, liberando la precedente.</summary>
+        private static void SetMenuGlyph(ToolStripItem item, string glyph, Color color)
+        {
+            Image old  = item.Image;
+            item.Image = Theme.IconFont(9) != null ? Theme.GlyphImage(glyph, color, 16) : null;
+            if (old != null) old.Dispose();
+        }
+
+        private void Theme_Changed(object sender, EventArgs e)
+        {
+            if (IsDisposed) return;
+            if (InvokeRequired) BeginInvoke((MethodInvoker)ApplyTheme);
+            else                ApplyTheme();
+        }
+
+        protected override void OnHandleCreated(EventArgs e)
+        {
+            base.OnHandleCreated(e);
+            Theme.ApplyWindowChrome(this);
+        }
+
+        protected override void OnShown(EventArgs e)
+        {
+            base.OnShown(e);
+            Theme.Apply(this);   // ora i controlli nativi hanno l'handle (tema scuro di combo e campi)
         }
 
         private void UpdateTrayTooltip(TimeSpan elapsed)
@@ -337,16 +425,6 @@ namespace Insonnia
             notifyIcon.ShowBalloonTip(ms);
         }
 
-        // ── colore ProgressBar via SendMessage ───────────────────────────
-        [System.Runtime.InteropServices.DllImport("user32.dll")]
-        private static extern IntPtr SendMessage(IntPtr hWnd, uint msg, IntPtr wp, IntPtr lp);
-        private const uint PBM_SETBARCOLOR = 0x409;
-
-        private static void SetProgressBarColor(ProgressBar pb, Color color)
-        {
-            SendMessage(pb.Handle, PBM_SETBARCOLOR, IntPtr.Zero,
-                (IntPtr)System.Drawing.ColorTranslator.ToWin32(color));
-        }
 
         // ── avvia con Windows ────────────────────────────────────────────
         private void UpdateStartWithWindowsMenu()
@@ -449,6 +527,110 @@ namespace Insonnia
             idleMenuItem.DropDownItems.Add(customItem);
         }
 
+        // ── cambio ingresso monitor ───────────────────────────────────────
+        /// <summary>Ricostruisce il sottomenu "Cambio ingresso monitor" del tray icon.</summary>
+        private void RebuildMonitorSwitchMenu()
+        {
+            monitorSwitchMenuItem.DropDownItems.Clear();
+            Settings s = Settings.Default;
+
+            // Attivazione/disattivazione del cambio automatico
+            ToolStripMenuItem enabledItem = new ToolStripMenuItem(L.Menu_MonitorSwitchEnabled);
+            enabledItem.Checked = s.MonitorSwitchEnabled;
+            enabledItem.Click  += delegate(object sender, EventArgs e) { ToggleMonitorSwitch(); };
+            monitorSwitchMenuItem.DropDownItems.Add(enabledItem);
+
+            // Cambio manuale: disponibile anche a funzione disattivata, se il monitor è configurato
+            bool hasMonitor = !string.IsNullOrWhiteSpace(s.MonitorSwitchMonitorId);
+            AddSwitchNowItem(s.MonitorSwitchInputOnConnect, hasMonitor);
+            if (s.MonitorSwitchInputOnDisconnect != s.MonitorSwitchInputOnConnect)
+                AddSwitchNowItem(s.MonitorSwitchInputOnDisconnect, hasMonitor);
+
+            monitorSwitchMenuItem.DropDownItems.Add(new ToolStripSeparator());
+
+            ToolStripMenuItem configureItem = new ToolStripMenuItem(L.Menu_MonitorSwitchConfigure);
+            configureItem.Click += delegate(object sender, EventArgs e) { ShowMonitorSwitchConfig(); };
+            monitorSwitchMenuItem.DropDownItems.Add(configureItem);
+        }
+
+        private void AddSwitchNowItem(int input, bool enabled)
+        {
+            if (input <= 0) return;
+            ToolStripMenuItem item = new ToolStripMenuItem(L.Menu_MonitorSwitchNow(MonitorControl.InputName(input)));
+            item.Enabled = enabled;
+            item.Click  += delegate(object sender, EventArgs e) { _monitorSwitcher.SwitchNow(input); };
+            monitorSwitchMenuItem.DropDownItems.Add(item);
+        }
+
+        private void ToggleMonitorSwitch()
+        {
+            Settings s   = Settings.Default;
+            bool enable  = !s.MonitorSwitchEnabled;
+
+            // Attivazione senza configurazione completa: apre direttamente la configurazione
+            if (enable && (UsbDeviceWatcher.NormalizeUsbId(s.MonitorSwitchUsbId) == null ||
+                           string.IsNullOrWhiteSpace(s.MonitorSwitchMonitorId)))
+            {
+                ShowMonitorSwitchConfig();
+                return;
+            }
+
+            s.MonitorSwitchEnabled = enable;
+            s.Save();
+            _monitorSwitcher.Restart();
+            RebuildMonitorSwitchMenu();
+        }
+
+        private void ShowMonitorSwitchConfig()
+        {
+            if (_monitorSwitchForm != null && !_monitorSwitchForm.IsDisposed)
+            {
+                _monitorSwitchForm.Activate();
+                return;
+            }
+
+            _monitorSwitchForm = new MonitorSwitchForm();
+            _monitorSwitchForm.FormClosed += delegate(object sender, FormClosedEventArgs e)
+            {
+                MonitorSwitchForm form = (MonitorSwitchForm)sender;
+                if (form.Saved && _monitorSwitcher != null)
+                {
+                    _monitorSwitcher.Restart();
+                    RebuildMonitorSwitchMenu();
+                }
+                _monitorSwitchForm = null;
+                form.Dispose();
+            };
+            _monitorSwitchForm.Show();
+            _monitorSwitchForm.Activate();
+        }
+
+        /// <summary>
+        /// Esito di un cambio ingresso (thread del pool). I cambi automatici restano silenziosi;
+        /// un cambio manuale dal tray che fallisce mostra un balloon con il motivo.
+        /// </summary>
+        private void MonitorSwitcher_SwitchCompleted(object sender, MonitorSwitchEventArgs e)
+        {
+            if (!e.Manual ||
+                e.Outcome == MonitorSwitchOutcome.Switched ||
+                e.Outcome == MonitorSwitchOutcome.AlreadyActive)
+                return;
+            if (IsDisposed || !IsHandleCreated) return;
+
+            string text = MonitorSwitchForm.DescribeOutcome(e.Outcome, e.MonitorId, e.Input, e.Detail);
+            try
+            {
+                BeginInvoke((MethodInvoker)delegate
+                {
+                    ShowBalloon(L.Balloon_MonitorSwitchFailed, text, ToolTipIcon.Warning, 4000);
+                });
+            }
+            catch (InvalidOperationException)
+            {
+                // finestra in chiusura
+            }
+        }
+
         // ── formattazione tempi ───────────────────────────────────────────
         private static string FormatTime(TimeSpan t)
         {
@@ -535,6 +717,19 @@ namespace Insonnia
             {
                 e.Cancel = true;
                 Hide();
+            }
+        }
+
+        private void MainForm_FormClosed(object sender, FormClosedEventArgs e)
+        {
+            Theme.Changed -= Theme_Changed;
+
+            // Ferma il watcher USB (deregistra le notifiche e distrugge la finestra message-only)
+            if (_monitorSwitcher != null)
+            {
+                _monitorSwitcher.SwitchCompleted -= MonitorSwitcher_SwitchCompleted;
+                _monitorSwitcher.Dispose();
+                _monitorSwitcher = null;
             }
         }
 
