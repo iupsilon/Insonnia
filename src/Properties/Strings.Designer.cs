@@ -380,5 +380,28 @@ namespace Insonnia.Properties {
                 return ResourceManager.GetString("Msg_AlreadyRunning", resourceCulture);
             }
         }
+        internal static string UI_Subtitle {
+            get {
+                return ResourceManager.GetString("UI_Subtitle", resourceCulture);
+            }
+        }
+        
+        internal static string UI_RingElapsed {
+            get {
+                return ResourceManager.GetString("UI_RingElapsed", resourceCulture);
+            }
+        }
+        
+        internal static string UI_RingRemaining {
+            get {
+                return ResourceManager.GetString("UI_RingRemaining", resourceCulture);
+            }
+        }
+        
+        internal static string UI_SubtitleFestive {
+            get {
+                return ResourceManager.GetString("UI_SubtitleFestive", resourceCulture);
+            }
+        }
     }
 }

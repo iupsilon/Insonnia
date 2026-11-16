@@ -35,6 +35,10 @@ namespace Insonnia.Properties
         { return string.Format(Get(Strings.UI_StatusTimer, StringsEn.UI_StatusTimer), t); }
         public static string UI_IdleSuspendLabel    { get { return Get(Strings.UI_IdleSuspendLabel,    StringsEn.UI_IdleSuspendLabel); } }
         public static string UI_StatusIdleSuspended  { get { return Get(Strings.UI_StatusIdleSuspended, StringsEn.UI_StatusIdleSuspended); } }
+        public static string UI_Subtitle       { get { return Get(Strings.UI_Subtitle,       StringsEn.UI_Subtitle); } }
+        public static string UI_SubtitleFestive { get { return Get(Strings.UI_SubtitleFestive, StringsEn.UI_SubtitleFestive); } }
+        public static string UI_RingElapsed    { get { return Get(Strings.UI_RingElapsed,    StringsEn.UI_RingElapsed); } }
+        public static string UI_RingRemaining  { get { return Get(Strings.UI_RingRemaining,  StringsEn.UI_RingRemaining); } }
         // Durate combo
         public static string Duration_Infinite { get { return Get(Strings.Duration_Infinite, StringsEn.Duration_Infinite); } }
         public static string Duration_30min    { get { return Get(Strings.Duration_30min,    StringsEn.Duration_30min); } }
