@@ -153,6 +153,11 @@ foreach ($s in $shots) {
     Save-Shot $s.Name
 }
 
+# Sessione ferma: controlli abilitati (combo, interruttore, campo minuti)
+Invoke-M 'StopInsonnia' @()
+Set-Theme $true $false
+Save-Shot 'dark-stopped'
+
 # Chiusura reale (non solo nascondi nel tray)
 Invoke-M 'StopInsonnia' @()
 Set-F '_forceClose' $true

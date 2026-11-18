@@ -355,15 +355,8 @@ namespace Insonnia.UI
                     c.ForeColor = t.Text;
                     SetNativeTheme(c, t.IsDark ? "DarkMode_CFD" : "CFD");
 
-                    // NumericUpDown: le frecce native restano chiare anche in modalità scura;
-                    // si nascondono (rotellina e tasti freccia continuano a funzionare)
-                    NumericUpDown nud = c as NumericUpDown;
-                    if (nud != null && nud.Controls.Count > 1)
-                    {
-                        nud.Controls[0].Visible = false;                    // UpDownButtons
-                        nud.Controls[1].Width   = nud.ClientSize.Width;     // il campo occupa lo spazio liberato
-                        nud.TextAlign           = HorizontalAlignment.Center;
-                    }
+                    // NumericUpDown: le frecce native restano chiare anche in modalità scura,
+                    // per questo il form usa ModernNumericUpDown, che le nasconde
                 }
                 else if (c is ListView)
                 {

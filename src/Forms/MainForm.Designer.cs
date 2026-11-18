@@ -45,11 +45,11 @@ namespace Insonnia.Forms
             this.cardSession       = new ModernCard();
             this.lblDuration       = new System.Windows.Forms.Label();
             this.cmbDuration       = new ModernComboBox();
-            this.nudCustomMinutes  = new System.Windows.Forms.NumericUpDown();
+            this.nudCustomMinutes  = new ModernNumericUpDown();
             this.lblMinutes        = new System.Windows.Forms.Label();
             this.sepSession        = new ModernSeparator();
             this.chkIdleSuspend    = new ToggleSwitch();
-            this.nudIdleMinutes    = new System.Windows.Forms.NumericUpDown();
+            this.nudIdleMinutes    = new ModernNumericUpDown();
             this.lblIdleMinutes    = new System.Windows.Forms.Label();
 
             // Bottoni
@@ -286,11 +286,11 @@ namespace Insonnia.Forms
         private ModernCard                             cardSession;
         private System.Windows.Forms.Label             lblDuration;
         private ModernComboBox                         cmbDuration;
-        private System.Windows.Forms.NumericUpDown     nudCustomMinutes;
+        private ModernNumericUpDown                    nudCustomMinutes;
         private System.Windows.Forms.Label             lblMinutes;
         private ModernSeparator                        sepSession;
         private ToggleSwitch                           chkIdleSuspend;
-        private System.Windows.Forms.NumericUpDown     nudIdleMinutes;
+        private ModernNumericUpDown                    nudIdleMinutes;
         private System.Windows.Forms.Label             lblIdleMinutes;
         private ModernButton                           btnStart;
         private ModernButton                           btnStop;

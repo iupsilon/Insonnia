@@ -424,6 +424,47 @@ namespace Insonnia.UI
     }
 
     /// <summary>
+    /// NumericUpDown senza frecce (quelle native restano chiare anche in modalità scura):
+    /// il valore si cambia digitando, con la rotellina o con i tasti freccia. Il campo di testo
+    /// occupa anche lo spazio delle frecce, altrimenti lì resterebbe una striscia bianca.
+    /// </summary>
+    internal sealed class ModernNumericUpDown : NumericUpDown
+    {
+        private bool _stretching;
+
+        public ModernNumericUpDown()
+        {
+            Controls[0].Visible = false;    // UpDownButtons
+            TextAlign = HorizontalAlignment.Center;
+        }
+
+        // UpDownBase.PositionControls (privato) riserva sempre lo spazio delle frecce e viene
+        // chiamato da layout, creazione dell'handle, cambio font e resize del campo:
+        // dopo ciascuno il campo viene riallargato.
+        protected override void OnLayout(LayoutEventArgs e)    { base.OnLayout(e);        StretchEdit(); }
+        protected override void OnHandleCreated(EventArgs e)   { base.OnHandleCreated(e); StretchEdit(); }
+        protected override void OnFontChanged(EventArgs e)     { base.OnFontChanged(e);   StretchEdit(); }
+
+        protected override void OnTextBoxResize(object source, EventArgs e)
+        {
+            if (_stretching) return;        // resize provocato da StretchEdit: niente riposizionamento
+            base.OnTextBoxResize(source, e);
+            StretchEdit();
+        }
+
+        private void StretchEdit()
+        {
+            if (_stretching || Controls.Count < 2) return;
+            Control edit  = Controls[1];   // UpDownEdit
+            int     width = ClientSize.Width - 2 * edit.Left;   // stesso margine a destra e a sinistra
+            if (width <= 0 || edit.Width == width) return;
+            _stretching = true;
+            try     { edit.Width = width; }
+            finally { _stretching = false; }
+        }
+    }
+
+    /// <summary>
     /// Combo a elenco (DropDownList) disegnato interamente a tema: riquadro arrotondato,
     /// chevron Fluent, voci con evidenziazione tenue. Per i combo editabili si usa quello nativo.
     /// </summary>
