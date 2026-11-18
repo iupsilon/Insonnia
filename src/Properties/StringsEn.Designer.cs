@@ -74,5 +74,9 @@ namespace Insonnia.Properties {
         internal static string Balloon_IdleSuspendText { get { return ResourceManager.GetString("Balloon_IdleSuspendText", resourceCulture); } }
         internal static string Balloon_IdleResumeTitle { get { return ResourceManager.GetString("Balloon_IdleResumeTitle", resourceCulture); } }
         internal static string Balloon_IdleResumeText { get { return ResourceManager.GetString("Balloon_IdleResumeText", resourceCulture); } }
+        internal static string UI_Subtitle { get { return ResourceManager.GetString("UI_Subtitle", resourceCulture); } }
+        internal static string UI_SubtitleFestive { get { return ResourceManager.GetString("UI_SubtitleFestive", resourceCulture); } }
+        internal static string UI_RingElapsed { get { return ResourceManager.GetString("UI_RingElapsed", resourceCulture); } }
+        internal static string UI_RingRemaining { get { return ResourceManager.GetString("UI_RingRemaining", resourceCulture); } }
     }
 }

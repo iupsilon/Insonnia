@@ -12,7 +12,9 @@
 - ⏱️ **Configurable duration** — always-on or with an auto-stop timer
 - 💤 **Idle auto-suspend** *(optional)* — if you walk away, releases the lock after N idle minutes so the PC can sleep, then resumes automatically on the next keyboard/mouse activity
 - 🔕 **Minimal notifications** — a single balloon when the timer expires; everything else stays silent (status lives in the window and tray tooltip)
-- 📊 **Live progress bar** with color feedback (green → orange → red)
+- 🎨 **Fluent design** — light/dark theme that follows Windows, Windows 11 title bar and rounded corners, Segoe UI Variable typography and Segoe Fluent icons, custom buttons, toggles and tray menu
+- ⭕ **Live progress ring** with the time in the centre and color feedback (green → orange → red)
+- 🎄 **Christmas theme** — switches on by itself from 1 December to 6 January: Christmas-red accents, gentle snow falling inside the ring, a red cup with a white rim and a holly sprig in the tray icon, and a seasonal greeting
 - ☕ **Mode-aware tray icon** — a coffee cup with a small overlay that shows the current mode at a glance: a clock for a running timer, a "zzz" when idle-suspended, no overlay when always-on, grey when stopped
 - 🕐 **Elapsed / remaining time** shown in real time in the form and tray tooltip
 - 🌍 **Bilingual UI** — Italian and English, auto-detected from Windows language
@@ -44,11 +46,23 @@ No installer required. Download the latest release, extract and run `Insonnia.ex
 |---|---|
 | **Duration** combo | Choose how long to keep the PC awake |
 | **Custom minutes** field | Appears when "Custom..." is selected — enter any value from 1 to 999 minutes |
-| **Suspend if idle** check + minutes | When enabled, releases keep-awake after the given idle minutes (1–240) and resumes on activity |
-| **▶ Start** | Activates keep-awake with the selected duration |
-| **■ Stop** | Deactivates keep-awake immediately |
-| Status label | Shows elapsed time (∞ mode) or remaining time (timer mode) |
-| Progress bar | Visible in timer mode — fills left-to-right, changes color near expiry |
+| **Suspend if idle** toggle + minutes | When enabled, releases keep-awake after the given idle minutes (1–240) and resumes on activity. Minutes can be typed or changed with the mouse wheel / arrow keys |
+| **Start** | Activates keep-awake with the selected duration |
+| **Stop** | Deactivates keep-awake immediately |
+| Progress ring | Shows the time in the centre: elapsed (∞ mode, full amber ring), remaining (timer mode, the arc shrinks and turns orange/red near expiry), idle-suspended (indigo) |
+
+The window follows the Windows light/dark setting (*Settings → Personalization → Colors*) and switches live when it changes.
+
+### 🎄 Christmas Theme
+
+From **1 December to 6 January** (Epiphany) Insonnia dresses up for the holidays, with no configuration needed:
+
+- **Christmas red** everywhere: **Start** button, toggles, focus, the always-on ring and the logo tile; the **Stop** button turns holly green so the two stay easy to tell apart
+- light **snow falls inside the ring**, like a snow globe — animated only while the window is visible, so it costs nothing when the app sits in the tray
+- the cup in the tray icon and window logo turns **red with a snow-white rim** and gets a **holly sprig** (leaves and red berries); the stopped (grey) and idle (indigo) icons keep their state colours, with the holly
+- the subtitle becomes *"Happy holidays!"*
+
+The date is re-checked every 30 minutes, so the theme turns on and off by itself even when the app runs for days. To preview it out of season, start Insonnia with `-christmas`.
 
 ### Duration Options
 
@@ -83,10 +97,14 @@ Right-click the tray icon to access:
 | Parameter | Description |
 |---|---|
 | `-s` | **Silent autostart** — launches minimized to tray and immediately activates keep-awake. Used automatically by the "Start with Windows" feature. |
+| `-christmas` | **Christmas theme preview** — shows the holiday theme out of season |
+
+Parameters can be combined in any order.
 
 **Example:**
 ```
 Insonnia.exe -s
+Insonnia.exe -christmas
 ```
 
 ---
@@ -171,19 +189,30 @@ Settings are stored in `%APPDATA%\Insonnia\` via the standard .NET `ApplicationS
 ## 📁 Project Structure
 
 ```
+tools/
+└── MakeAppIcon.ps1               # Regenerates src/insonnia.ico (16–256 px) from the vector cup
 src/
-├── MainForm.cs            # Main form logic
-├── MainForm.Designer.cs   # UI layout
-├── TrayIconRenderer.cs    # Vector coffee-cup tray icons + mode overlays
-├── Win32Interop.cs        # SetThreadExecutionState + idle-time P/Invoke
-├── Extensions.cs          # Bitmap → Icon helper
-├── Program.cs             # Entry point + single-instance Mutex
+├── Insonnia.sln / Insonnia.csproj
+├── insonnia.ico                  # Application icon (desktop, Explorer, taskbar)
+├── Program.cs                    # Entry point + single-instance Mutex
+├── Forms/                        # Insonnia.Forms
+│   ├── MainForm.cs               # Main window logic + tray menu
+│   ├── MainForm.Designer.cs      # Main window layout (hand-written)
+├── UI/                           # Insonnia.UI
+│   ├── Theme.cs                  # Light/dark palette, fonts, Fluent glyphs, Windows 11 chrome
+│   ├── ModernControls.cs         # Button, toggle, combo, progress ring, card, tray menu renderer
+│   ├── TrayIconRenderer.cs       # Vector coffee-cup tray icons + mode overlays
+│   └── Extensions.cs             # Bitmap → Icon helper
+├── Interop/                      # Insonnia.Interop
+│   └── Win32Interop.cs           # SetThreadExecutionState + idle-time P/Invoke
 └── Properties/
-    ├── Strings.resx        # Italian strings (default)
-    ├── StringsEn.resx      # English strings
-    ├── StringsHelper.cs    # Localization wrapper (class L)
-    └── Settings.settings   # User preferences (duration, custom minutes, idle suspend)
+    ├── Strings.resx              # Italian strings
+    ├── StringsEn.resx            # English strings (default)
+    ├── StringsHelper.cs          # Localization wrapper (class L)
+    └── Settings.settings         # User preferences
 ```
+
+> The form layouts are hand-written (localized texts via `L.*`, custom controls): do not open them in the Visual Studio WinForms designer, which would re-serialize the texts as constants.
 
 ---
 

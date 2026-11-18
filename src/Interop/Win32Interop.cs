@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Runtime.InteropServices;
 
-namespace Insonnia
+namespace Insonnia.Interop
 {
     [FlagsAttribute]
     internal enum EXECUTION_STATE : uint

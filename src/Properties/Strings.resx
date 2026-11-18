@@ -71,6 +71,10 @@
   <data name="UI_StatusTimer"    xml:space="preserve"><value>Rimanente: {0}</value></data>
   <data name="UI_IdleSuspendLabel" xml:space="preserve"><value>Sospendi se inattivo:</value></data>
   <data name="UI_StatusIdleSuspended" xml:space="preserve"><value>Sospeso per inattività</value></data>
+  <data name="UI_Subtitle" xml:space="preserve"><value>Tieni sveglio il tuo PC</value></data>
+  <data name="UI_SubtitleFestive" xml:space="preserve"><value>Buone feste! Tieni sveglio il tuo PC</value></data>
+  <data name="UI_RingElapsed" xml:space="preserve"><value>attivo da</value></data>
+  <data name="UI_RingRemaining" xml:space="preserve"><value>rimanenti</value></data>
 
   <!-- Durate combo -->
   <data name="Duration_Infinite"    xml:space="preserve"><value>&#x221E;  Sempre attivo</value></data>

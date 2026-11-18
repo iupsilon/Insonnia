@@ -1,7 +1,8 @@
 ﻿using System;
 using System.Drawing;
+using Insonnia.Interop;
 
-namespace Insonnia
+namespace Insonnia.UI
 {
     internal static class Extensions
     {

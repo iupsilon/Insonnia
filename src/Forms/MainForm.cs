@@ -4,8 +4,10 @@ using System.Drawing;
 using System.Reflection;
 using System.Windows.Forms;
 using Insonnia.Properties;
+using Insonnia.Interop;
+using Insonnia.UI;
 
-namespace Insonnia
+namespace Insonnia.Forms
 {
     public partial class MainForm : Form
     {
@@ -69,10 +71,29 @@ namespace Insonnia
         // ultimo valore inattività usato (in minuti), per la voce "Personalizzato" del menu
         private int _lastIdleMinutes = 20;
 
+        // ── tema ───────────────────────────────────────────────────────────
+        private System.Windows.Forms.Timer _seasonTimer;   // controllo periodico del periodo natalizio
+
         // ────────────────────────────────────────────────────────────────
         public MainForm(bool autoStart)
         {
             InitializeComponent();
+
+            // Menu del tray e sottomenu disegnati dal renderer Fluent (segue il tema)
+            ToolStripManager.Renderer = new ModernMenuRenderer();
+            contextMenu.Opened += delegate { Theme.ApplyMenuChrome(contextMenu); };
+            foreach (ToolStripMenuItem sub in new[] { durationMenuItem, idleMenuItem })
+            {
+                ToolStripDropDown dropDown = sub.DropDown;
+                dropDown.Opened += delegate { Theme.ApplyMenuChrome(dropDown); };
+            }
+            Theme.Changed += Theme_Changed;
+
+            // Tema natalizio: ricontrolla la data ogni 30 minuti (l'app può restare aperta per giorni)
+            _seasonTimer          = new System.Windows.Forms.Timer();
+            _seasonTimer.Interval = 30 * 60 * 1000;
+            _seasonTimer.Tick    += delegate { Theme.RefreshSeason(); };
+            _seasonTimer.Start();
 
             for (int i = 0; i < DurationLabels.Length; i++)
                 cmbDuration.Items.Add(DurationLabels[i]);
@@ -103,7 +124,7 @@ namespace Insonnia
             RebuildDurationMenu();
             RebuildIdleMenu();
             SetTrayIcon(TrayIconRenderer.Stopped);
-            picTitle.Image = TrayIconRenderer.Logo;
+            ApplyTheme();
 
             // Versione assembly
             Version ver = Assembly.GetExecutingAssembly().GetName().Version;
@@ -243,34 +264,47 @@ namespace Insonnia
             btnStop.Visible             = _keepAwake;
             cmbDuration.Enabled         = !_keepAwake;
             nudCustomMinutes.Enabled    = !_keepAwake;
-            progressTimer.Visible       = false;
 
             // Configurazione inattività modificabile solo a sessione ferma (come la durata)
             chkIdleSuspend.Enabled = !_keepAwake;
             nudIdleMinutes.Enabled = !_keepAwake && chkIdleSuspend.Checked;
 
             // Aggiorna voce tray start/stop
-            startStopMenuItem.Text = _keepAwake ? L.Menu_Stop : L.Menu_Start;
+            startStopMenuItem.Text = Theme.PlainText(_keepAwake ? L.Menu_Stop : L.Menu_Start);
+            SetMenuGlyph(startStopMenuItem,
+                _keepAwake ? Theme.GlyphStop : Theme.GlyphPlay,
+                _keepAwake ? Theme.Current.Danger : Theme.Current.Accent);
             // Durata e inattività selezionabili solo se non attivo
             durationMenuItem.Enabled = !_keepAwake;
             idleMenuItem.Enabled     = !_keepAwake;
         }
 
+        /// <summary>
+        /// Aggiorna l'anello di stato: tempo al centro, didascalia e colore secondo la modalità.
+        ///  fermo → anello vuoto; illimitato → anello pieno ambra (tempo trascorso);
+        ///  timer → arco del tempo residuo verde/arancio/rosso; sospeso → anello indaco.
+        /// </summary>
         private void UpdateStatusDisplay(TimeSpan elapsed)
         {
+            Theme t = Theme.Current;
+
             if (!_keepAwake)
             {
-                lblStatus.Text      = L.UI_StatusPaused;
-                lblStatus.ForeColor = Color.Gray;
-                progressTimer.Visible = false;
+                progressTimer.Fraction = 0f;
+                progressTimer.Muted    = true;
+                progressTimer.Text     = FormatTime(TimeSpan.Zero);
+                progressTimer.Caption  = L.UI_StatusPaused;
                 return;
             }
 
+            progressTimer.Muted = false;
+
             if (_idleSuspended)
             {
-                lblStatus.Text        = L.UI_StatusIdleSuspended;
-                lblStatus.ForeColor   = Color.SlateGray;
-                progressTimer.Visible = false;
+                progressTimer.Fraction  = 1f;
+                progressTimer.RingColor = t.Idle;
+                progressTimer.Text      = FormatTime(elapsed);
+                progressTimer.Caption   = L.UI_StatusIdleSuspended;
                 return;
             }
 
@@ -282,25 +316,81 @@ namespace Insonnia
                 double ratio = elapsed.TotalSeconds / _maxDuration.Value.TotalSeconds;
                 bool urgent  = remaining.TotalSeconds <= UrgentSecs;
 
-                lblStatus.Text = L.UI_StatusTimer(FormatTime(remaining));
-                lblStatus.ForeColor = urgent ? Color.Crimson : Color.FromArgb(0, 120, 60);
-
-                progressTimer.Visible = true;
-                progressTimer.Maximum = (int)_maxDuration.Value.TotalSeconds;
-                progressTimer.Value   = Math.Min((int)elapsed.TotalSeconds, progressTimer.Maximum);
-
-                Color barColor;
-                if (urgent)             barColor = Color.Crimson;
-                else if (ratio >= 0.75) barColor = Color.Orange;
-                else                    barColor = Color.FromArgb(0, 153, 76);
-                SetProgressBarColor(progressTimer, barColor);
+                progressTimer.Fraction  = (float)(remaining.TotalSeconds / _maxDuration.Value.TotalSeconds);
+                progressTimer.RingColor = urgent ? t.Critical : ratio >= 0.75 ? t.Warning : t.Success;
+                progressTimer.Text      = FormatTime(remaining);
+                progressTimer.Caption   = L.UI_RingRemaining;
             }
             else
             {
-                lblStatus.Text        = L.UI_StatusActive(FormatTime(elapsed));
-                lblStatus.ForeColor   = Color.FromArgb(0, 102, 204);
-                progressTimer.Visible = false;
+                progressTimer.Fraction  = 1f;
+                progressTimer.RingColor = t.RingActive;
+                progressTimer.Text      = FormatTime(elapsed);
+                progressTimer.Caption   = L.UI_RingElapsed;
             }
+        }
+
+        // ── tema ──────────────────────────────────────────────────────────
+        /// <summary>Applica il tema corrente (chiaro/scuro) a finestra, controlli e menu del tray.</summary>
+        private void ApplyTheme()
+        {
+            Theme t = Theme.Current;
+            BackColor = t.Background;
+            ForeColor = t.Text;
+            Theme.Apply(this);
+            lblSubtitle.ForeColor = t.TextMuted;
+            lblVersion.ForeColor  = t.TextMuted;
+            Theme.ApplyWindowChrome(this);
+
+            // Tema natalizio: neve nell'anello, auguri nel sottotitolo, agrifoglio sulle icone
+            progressTimer.Snow = t.IsFestive;
+            lblSubtitle.Text   = t.IsFestive ? L.UI_SubtitleFestive : L.UI_Subtitle;
+            SetTrayIcon(CurrentTrayIcon());
+
+            // menu del tray: font e icone Fluent
+            Font menuFont = Theme.UiFont(9.5f);
+            contextMenu.Font       = menuFont;
+            startStopMenuItem.Font = Theme.UiFont(9.5f, FontStyle.Bold);
+            foreach (ToolStripMenuItem sub in new[] { durationMenuItem, idleMenuItem })
+            {
+                sub.DropDown.Font    = menuFont;
+                sub.DropDown.Padding = new Padding(4, 6, 4, 6);
+            }
+            SetMenuGlyph(showToolStripMenuItem, Theme.GlyphWindow,  t.Text);
+            SetMenuGlyph(durationMenuItem,      Theme.GlyphClock,   t.Text);
+            SetMenuGlyph(idleMenuItem,          Theme.GlyphMoon,    t.Text);
+            SetMenuGlyph(quitToolStripMenuItem, Theme.GlyphClose,   t.Text);
+
+            UpdateUI();
+            UpdateStatusDisplay(_insonniaStarted.HasValue ? DateTime.Now - _insonniaStarted.Value : TimeSpan.Zero);
+            Invalidate(true);
+        }
+
+        /// <summary>Sostituisce l'icona (glifo) di una voce di menu, liberando la precedente.</summary>
+        private static void SetMenuGlyph(ToolStripItem item, string glyph, Color color)
+        {
+            Image old  = item.Image;
+            item.Image = Theme.IconFont(9) != null ? Theme.GlyphImage(glyph, color, 16) : null;
+            if (old != null) old.Dispose();
+        }
+
+        private void Theme_Changed(object sender, EventArgs e)
+        {
+            if (IsDisposed) return;
+            if (InvokeRequired) BeginInvoke((MethodInvoker)ApplyTheme);
+            else                ApplyTheme();
+        }
+
+        protected override void OnHandleCreated(EventArgs e)
+        {
+            base.OnHandleCreated(e);
+            Theme.ApplyWindowChrome(this);
+        }
+
+        protected override void OnShown(EventArgs e)
+        {
+            base.OnShown(e);
+            Theme.Apply(this);   // ora i controlli nativi hanno l'handle (tema scuro di combo e campi)
         }
 
         private void UpdateTrayTooltip(TimeSpan elapsed)
@@ -329,23 +419,21 @@ namespace Insonnia
             this.Icon = notifyIcon.Icon = icon;
         }
 
+        /// <summary>Icona del tray per lo stato corrente (nella variante del tema in uso).</summary>
+        private Icon CurrentTrayIcon()
+        {
+            if (!_keepAwake)          return TrayIconRenderer.Stopped;
+            if (_idleSuspended)       return TrayIconRenderer.IdleSuspended;
+            if (_maxDuration.HasValue) return TrayIconRenderer.Timer;
+            return TrayIconRenderer.Active;
+        }
+
         private void ShowBalloon(string title, string text, ToolTipIcon icon, int ms)
         {
             notifyIcon.BalloonTipTitle = title;
             notifyIcon.BalloonTipText  = text;
             notifyIcon.BalloonTipIcon  = icon;
             notifyIcon.ShowBalloonTip(ms);
-        }
-
-        // ── colore ProgressBar via SendMessage ───────────────────────────
-        [System.Runtime.InteropServices.DllImport("user32.dll")]
-        private static extern IntPtr SendMessage(IntPtr hWnd, uint msg, IntPtr wp, IntPtr lp);
-        private const uint PBM_SETBARCOLOR = 0x409;
-
-        private static void SetProgressBarColor(ProgressBar pb, Color color)
-        {
-            SendMessage(pb.Handle, PBM_SETBARCOLOR, IntPtr.Zero,
-                (IntPtr)System.Drawing.ColorTranslator.ToWin32(color));
         }
 
         // ── avvia con Windows ────────────────────────────────────────────
@@ -536,6 +624,13 @@ namespace Insonnia
                 e.Cancel = true;
                 Hide();
             }
+        }
+
+        private void MainForm_FormClosed(object sender, FormClosedEventArgs e)
+        {
+            Theme.Changed -= Theme_Changed;
+            _seasonTimer.Stop();
+            _seasonTimer.Dispose();
         }
 
         private void notifyIcon_MouseClick(object sender, MouseEventArgs e)

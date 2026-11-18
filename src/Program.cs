@@ -2,6 +2,8 @@
 using System;
 using System.Threading;
 using System.Windows.Forms;
+using Insonnia.Forms;
+using Insonnia.UI;
 
 namespace Insonnia
 {
@@ -27,10 +29,19 @@ namespace Insonnia
                 Application.EnableVisualStyles();
                 Application.SetCompatibleTextRenderingDefault(false);
 
-                bool autoStart = args != null && args.Length > 0 &&
-                                 string.Equals(args[0], "-s", StringComparison.OrdinalIgnoreCase);
+                bool autoStart = HasArg(args, "-s");
+                // -christmas: tema natalizio anche fuori stagione (anteprima)
+                Theme.ForceFestive = HasArg(args, "-christmas");
                 Application.Run(new MainForm(autoStart));
             }
+        }
+
+        private static bool HasArg(string[] args, string name)
+        {
+            if (args == null) return false;
+            foreach (string arg in args)
+                if (string.Equals(arg, name, StringComparison.OrdinalIgnoreCase)) return true;
+            return false;
         }
     }
 }
