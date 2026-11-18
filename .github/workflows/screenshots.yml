@@ -1,0 +1,30 @@
+name: Screenshots
+
+# Avvio manuale dalla tab Actions: compila, cattura la finestra nei vari temi/stati
+# (tools/Screenshots.ps1) e pubblica i PNG come artifact da copiare in docs/screenshots.
+on:
+  workflow_dispatch:
+
+jobs:
+  screenshots:
+    runs-on: windows-2025     # Windows 11-based: barra del titolo in tinta, angoli arrotondati
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup MSBuild
+        uses: microsoft/setup-msbuild@v2
+
+      - name: Build (Release)
+        run: msbuild src/Insonnia.csproj /p:Configuration=Release /p:Platform=AnyCPU /m
+
+      - name: Capture screenshots
+        shell: powershell
+        run: powershell -STA -ExecutionPolicy Bypass -File tools\Screenshots.ps1 -Exe src\bin\Release\Insonnia.exe -OutDir screenshots
+
+      - name: Upload screenshots
+        uses: actions/upload-artifact@v4
+        with:
+          name: screenshots
+          path: screenshots/*.png
+          if-no-files-found: error
