@@ -161,7 +161,7 @@ Insonnia stays quiet on purpose. Starting, stopping, suspending and resuming are
 
 > **"Time's up — good night!"** → the session auto-stops.
 
-In the final minute the window status and progress bar turn crimson, but no popup interrupts you.
+In the final minute the progress ring turns red, but no popup interrupts you.
 
 ---
 
