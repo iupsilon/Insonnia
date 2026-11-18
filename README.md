@@ -54,7 +54,33 @@
 
 ### Installation
 
-No installer required. Download the latest release, extract and run `Insonnia.exe`.
+No installer required. Download **`Insonnia.exe`** from the [latest release](https://github.com/iupsilon/Insonnia/releases/latest) and run it. Alternatively, download the `.zip`, which also contains `Insonnia.exe.config`, and extract it into one folder.
+
+---
+
+## 📦 Releases
+
+Every release is built automatically by GitHub Actions from a `vMAJOR.MINOR` tag and ships two assets:
+
+| Asset | Contents |
+|---|---|
+| `Insonnia.exe` | The app, ready to run |
+| `Insonnia-vX.Y.zip` | `Insonnia.exe` + `Insonnia.exe.config` |
+
+### Version history
+
+| Version | Highlights |
+|---|---|
+| [**v2.5**](https://github.com/iupsilon/Insonnia/releases/tag/v2.5) | Fix: no more white strip in the minutes fields; screenshots in the README |
+| [v2.4](https://github.com/iupsilon/Insonnia/releases/tag/v2.4) | Fluent light/dark UI with progress ring, automatic Christmas theme, new app icon, standalone exe download |
+| [v2.3](https://github.com/iupsilon/Insonnia/releases/tag/v2.3) | Vector coffee-cup tray icon with mode overlays; notifications reduced to timer expiry only |
+| [v2.2](https://github.com/iupsilon/Insonnia/releases/tag/v2.2) | English by default (Italian for `it-*`); no extra DLLs in the download |
+| [v2.1](https://github.com/iupsilon/Insonnia/releases/tag/v2.1) | Idle auto-suspend; dynamic progress-ring tray icon; first automated release |
+| [v2.0](https://github.com/iupsilon/Insonnia/releases/tag/v2.0) | Durations and timer, full tray menu, Italian/English UI, remembered settings, single instance |
+| [v1.1](https://github.com/iupsilon/Insonnia/releases/tag/v1.1) | .NET Framework 4.8, new layout, mood coffee icons, tray menu |
+| [v1.0](https://github.com/iupsilon/Insonnia/releases/tag/v1.0) | First release: Start/Stop, tray, silent mode `-s` |
+
+Full notes for each version are on the [Releases page](https://github.com/iupsilon/Insonnia/releases).
 
 ---
 
