@@ -6,6 +6,26 @@
 
 ---
 
+## 📸 Screenshots
+
+<p align="center">
+  <img src="docs/screenshots/light-always-on.png" width="260" alt="Always-on session, light theme">
+  <img src="docs/screenshots/dark-timer.png" width="260" alt="Timer session near expiry, dark theme">
+  <img src="docs/screenshots/light-idle.png" width="260" alt="Session suspended for inactivity">
+</p>
+<p align="center"><em>Always-on (light) · Timer, last quarter (dark) · Suspended for inactivity</em></p>
+
+<p align="center">
+  <img src="docs/screenshots/christmas-light.png" width="260" alt="Christmas theme, light">
+  <img src="docs/screenshots/christmas-dark.png" width="260" alt="Christmas theme, dark, with snow in the ring">
+  <img src="docs/screenshots/dark-always-on.png" width="260" alt="Always-on session, dark theme">
+</p>
+<p align="center"><em>🎄 Christmas theme (light / dark) · Always-on (dark)</em></p>
+
+> Screenshots are generated on a Windows runner by the manual **Screenshots** workflow (`tools/Screenshots.ps1`).
+
+---
+
 ## ✨ Features
 
 - 🖥️ **Prevents sleep and display shutoff** via Windows API
@@ -190,7 +210,8 @@ Settings are stored in `%APPDATA%\Insonnia\` via the standard .NET `ApplicationS
 
 ```
 tools/
-└── MakeAppIcon.ps1               # Regenerates src/insonnia.ico (16–256 px) from the vector cup
+├── MakeAppIcon.ps1               # Regenerates src/insonnia.ico (16–256 px) from the vector cup
+└── Screenshots.ps1               # Captures docs/screenshots/*.png (run by the Screenshots workflow)
 src/
 ├── Insonnia.sln / Insonnia.csproj
 ├── insonnia.ico                  # Application icon (desktop, Explorer, taskbar)
